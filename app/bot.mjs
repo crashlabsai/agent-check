@@ -103,18 +103,20 @@ async function main() {
     readFileSync(join(ROOT, "runner", "recordings", "active-chargeback-delayed-fraud.json"), "utf8"),
   );
   const { results, totals } = computeResults(suite, verdict);
-  const report = buildReport({ verdict, suite, results, recording, totals });
   const failed = totals.failedChecks > 0;
 
-  // 4. create a Check Run authored by the app (streamed timeline in the details)
+  // 4. create a Check Run authored by the app, with the FULL evidence + timeline
+  //    in its Details page (this is the "Investigate" target the comment links to)
   const timeline = recording.scenarios[0].candidate.events
     .map(progressLine)
     .filter(Boolean)
     .map((l) => `    ${l}`)
     .join("\n");
-  const checkText =
-    `${report}\n\n<details><summary><b>candidate timeline — ${failed ? "active-chargeback-delayed-fraud" : "all simulations"}</b></summary>\n\n\`\`\`\n${timeline}\n\`\`\`\n</details>`;
-  await gh(token, `/repos/${owner}/${name}/check-runs`, {
+  const detailedReport = buildReport({ verdict, suite, results, totals, recording, detailed: true });
+  const checkText = failed
+    ? `${detailedReport}\n\n<details><summary>candidate timeline</summary>\n\n\`\`\`\n${timeline}\n\`\`\`\n</details>`
+    : detailedReport;
+  const check = await gh(token, `/repos/${owner}/${name}/check-runs`, {
     method: "POST",
     body: JSON.stringify({
       name: "CrashLabs / behavioral",
@@ -148,7 +150,17 @@ async function main() {
     }
   }
   const mine = marked.find((c) => c.user?.login === selfLogin);
-  const body = `${report}\n${marker}`;
+  // The comment stays scannable and links "Investigate →" to the check-run page.
+  const commentReport = buildReport({
+    verdict,
+    suite,
+    results,
+    totals,
+    recording,
+    detailed: false,
+    investigateUrl: check?.html_url,
+  });
+  const body = `${commentReport}\n${marker}`;
   if (mine) {
     await gh(token, `/repos/${owner}/${name}/issues/comments/${mine.id}`, { method: "PATCH", body: JSON.stringify({ body }) });
   } else {

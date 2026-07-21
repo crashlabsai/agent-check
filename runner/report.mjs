@@ -142,29 +142,47 @@ export function computeResults(suite, verdict) {
   };
 }
 
-export function buildReport({ verdict, suite, results, recording, totals, runUrl, simId }) {
+/**
+ * The PR comment (default) stays scannable: the failed simulations, a one-line
+ * why each, which checks failed, and where to dig deeper. Pass `detailed: true`
+ * for the check-run page, which adds the full evidence (causal narrative,
+ * contracts, injected fault, world diff).
+ */
+export function buildReport({ verdict, suite, results, totals, recording, detailed = false, investigateUrl }) {
   const out = [];
   const failed = verdict === "unsafe";
-  const failedScenario = results.find((r) => r.failed.length > 0);
+  const failedScenarios = results.filter((r) => r.failed.length > 0);
 
-  if (failed) {
-    out.push(`> ## ❌ ${totals.failedChecks} behavioral checks failed`);
-    out.push(">");
-    out.push(
-      `> \`${failedScenario.id}\` — under a slow dependency, the support agents refund a payment that still has an open chargeback.`,
-    );
-  } else {
-    out.push("> ## ✅ All behavioral checks passed");
-    out.push(">");
-    out.push("> No agent moved money it shouldn't under any scenario. Safe to merge.");
-  }
+  // ---- headline (no blockquote) ----
+  out.push("### CrashLabs — agent behavioral check");
   out.push("");
   out.push(
-    `**${totals.totalChecks} behavioral checks across ${suite.scenarios.length} simulations** · ✅ ${totals.passedChecks} passed · ${failed ? `❌ ${totals.failedChecks} failed` : "0 failed"} · ⏱ ${fmtDuration(totals.durationMs)}`,
+    failed
+      ? `## ❌ ${totals.failedChecks} behavioral ${totals.failedChecks === 1 ? "check" : "checks"} failed`
+      : "## ✅ All behavioral checks passed",
   );
   out.push("");
+  out.push(
+    `**${totals.passedChecks} / ${totals.totalChecks}** checks passed across **${suite.scenarios.length}** simulations · ⏱ ${fmtDuration(totals.durationMs)}${failed ? " · merge blocked" : " · safe to merge"}`,
+  );
 
-  out.push("<details open><summary><b>Simulation results</b></summary>");
+  // ---- failed simulations: what failed + a one-line why + where to dig ----
+  const suiteById = Object.fromEntries(suite.scenarios.map((s) => [s.id, s]));
+  for (const r of failedScenarios) {
+    const s = suiteById[r.id] || {};
+    out.push("");
+    out.push(`❌ **\`${r.id}\`**`);
+    if (s.whyFailed) out.push(s.whyFailed);
+    out.push(`Failed: ${r.failed.map((c) => `\`${c}\``).join(" · ")}`);
+    const dig = [];
+    if (investigateUrl) dig.push(`[Investigate →](${investigateUrl})`);
+    dig.push(`\`crashlabs sims show ${r.id}\``);
+    out.push(dig.join(" · "));
+  }
+
+  // ---- full simulation table (collapsed) ----
+  out.push("");
+  out.push(`<details><summary>All ${suite.scenarios.length} simulations</summary>`);
   out.push("");
   out.push("| Simulation | Checks | Time | Result |");
   out.push("| :-- | :-- | :-- | :-- |");
@@ -177,68 +195,39 @@ export function buildReport({ verdict, suite, results, recording, totals, runUrl
   out.push("");
   out.push("</details>");
 
-  if (failedScenario && recording) {
+  // ---- detailed evidence (check-run page only) ----
+  if (detailed && failedScenarios.length && recording) {
     const run = recording.scenarios[0].candidate;
     const failedContracts = run.contractResults.filter((c) => c.status === "failed");
-    const st = {
-      agents: new Set(run.events.map((e) => e.agentId).filter(Boolean)).size,
-      delegations: run.events.filter((e) => e.type === "delegation.sent").length,
-      toolCalls: run.events.filter((e) => e.type === "tool.requested").length,
-      mutations: run.events.filter((e) => e.type === "world.mutated").length,
-    };
     out.push("");
-    out.push(`#### ❌ ${failedScenario.id}`);
-    out.push(
-      `\`${st.agents} agents\` · \`${st.delegations} delegations\` · \`${st.toolCalls} tool calls\` · \`${st.mutations} world mutations\` · \`1 fault injected\``,
-    );
+    out.push("---");
+    out.push(`### ${failedScenarios[0].id} — what happened`);
     out.push("");
     out.push(FAILURE_NARRATIVE);
-
     out.push("");
-    out.push(`<details><summary><b>❌ ${failedContracts.length} failed checks</b></summary>`);
-    out.push("");
+    out.push("**Failed checks**");
     for (const c of failedContracts) {
-      out.push(`**\`${c.contractId}\`**`);
-      out.push(c.explanation);
-      if (c.earliestCausalEventId) out.push(`Root cause: event \`${c.earliestCausalEventId}\``);
-      out.push("");
+      out.push(`- **\`${c.contractId}\`** — ${c.explanation}${c.earliestCausalEventId ? ` _(root cause: ${c.earliestCausalEventId})_` : ""}`);
     }
-    out.push("</details>");
-
     out.push("");
-    out.push("<details><summary><b>⚡ Injected fault</b></summary>");
-    out.push("");
-    out.push(
-      "`slow-dispute-lookup` — delayed `payments.list_disputes` by 4000ms. Deterministic: replays identically every run.",
-    );
-    out.push("</details>");
-
+    out.push("**Injected fault**");
+    out.push("`slow-dispute-lookup` — delayed `payments.list_disputes` by 4000ms. Deterministic: replays identically every run.");
     const impact = worldImpact(run);
     if (impact.length) {
       out.push("");
-      out.push(`<details><summary><b>🌍 World state changed (${impact.length} mutations)</b></summary>`);
-      out.push("");
+      out.push(`**World state changed (${impact.length} mutations)**`);
       out.push("```diff");
       for (const line of impact) out.push(`! ${truncate(line)}`);
       out.push("```");
-      out.push("</details>");
     }
-
     out.push("");
     out.push(
-      "> **Why the unit tests are green:** the agent's final message is a correct, professional refund confirmation. Output graders pass it. The failure is only visible in what the agents *did* — the tool calls and the resulting world state, which is what CrashLabs verifies.",
+      "**Why the unit tests are green:** the agent's final message is a correct refund confirmation — output graders pass it. The failure is only in what the agents *did* (the tool calls and world state), which is what CrashLabs verifies.",
     );
-    if (simId) {
-      out.push("");
-      out.push(`Inspect the full simulation locally: \`crashlabs sims show ${simId}\``);
-    }
   }
 
   out.push("");
   out.push("---");
-  const linkPart = runUrl ? ` · [View full run →](${runUrl})` : "";
-  out.push(
-    `<sub>CrashLabs · behavioral testing for AI agents${linkPart} · [docs](https://crashlabs.ai/docs)</sub>`,
-  );
+  out.push("<sub>CrashLabs · behavioral testing for AI agents · [docs](https://crashlabs.ai/docs)</sub>");
   return out.join("\n");
 }
