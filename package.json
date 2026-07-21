@@ -1,0 +1,11 @@
+{
+  "name": "@crashlabs/cli",
+  "version": "1.0.0",
+  "description": "CrashLabs — behavioral testing for AI agents",
+  "type": "module",
+  "bin": {
+    "crashlabs": "runner/cli.mjs"
+  },
+  "files": ["runner"],
+  "license": "MIT"
+}
