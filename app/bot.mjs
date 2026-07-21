@@ -134,12 +134,23 @@ async function main() {
   });
 
   // 5. post/update the PR comment as the app
+  // Post the comment authored BY THE APP. Any earlier marker comment posted by
+  // something else (e.g. the retired github-actions check) is deleted so the
+  // comment shows as CrashLabs, not "github-actions edited by CrashLabs".
   const marker = "<!-- crashlabs-check -->";
+  const self = await gh(jwt, `/app`);
+  const selfLogin = `${self.slug}[bot]`;
   const comments = await gh(token, `/repos/${owner}/${name}/issues/${pr}/comments?per_page=100`);
-  const prev = comments.find((c) => c.body && c.body.includes(marker));
+  const marked = comments.filter((c) => c.body && c.body.includes(marker));
+  for (const c of marked) {
+    if (c.user?.login !== selfLogin) {
+      await gh(token, `/repos/${owner}/${name}/issues/comments/${c.id}`, { method: "DELETE" }).catch(() => {});
+    }
+  }
+  const mine = marked.find((c) => c.user?.login === selfLogin);
   const body = `${report}\n${marker}`;
-  if (prev) {
-    await gh(token, `/repos/${owner}/${name}/issues/comments/${prev.id}`, { method: "PATCH", body: JSON.stringify({ body }) });
+  if (mine) {
+    await gh(token, `/repos/${owner}/${name}/issues/comments/${mine.id}`, { method: "PATCH", body: JSON.stringify({ body }) });
   } else {
     await gh(token, `/repos/${owner}/${name}/issues/${pr}/comments`, { method: "POST", body: JSON.stringify({ body }) });
   }
