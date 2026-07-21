@@ -12,6 +12,74 @@ import { join } from "node:path";
 const ACTION_PATH = process.env.CRASHLABS_ACTION_PATH || process.cwd();
 const CONFIG_PATH = process.env.CRASHLABS_CONFIG || "crashlabs.yml";
 const TOKEN = process.env.CRASHLABS_TOKEN || process.env.GITHUB_TOKEN || "";
+const INSTANT = process.env.CRASHLABS_REPLAY_INSTANT === "1";
+
+const sleep = (ms) => (INSTANT ? Promise.resolve() : new Promise((r) => setTimeout(r, ms)));
+
+/** Kestrel tool names are dotted (payments.issue_refund); recordings use underscores. */
+const toolName = (n) => String(n).replace("_", ".");
+
+/** One progress line for a normalized event, or null if it isn't worth showing. */
+function progressLine(event) {
+  const p = event.payload || {};
+  switch (event.type) {
+    case "delegation.sent":
+      return `coordinator delegates to ${p.agent}`;
+    case "delegation.completed":
+      return `${p.agent} reports back to coordinator`;
+    case "tool.requested": {
+      const tool = toolName(p.toolName);
+      const money = p.toolName === "payments_issue_refund" ? "   ← money moves ($89.99)" : "";
+      return `${event.agentId || "?"} calls ${tool}${money}`;
+    }
+    case "fault.applied":
+      return `⚡ fault ${p.faultId}: delaying ${toolName(p.target)} by ${p.action?.milliseconds}ms`;
+    default:
+      return null;
+  }
+}
+
+/**
+ * Stream the suite to the CI log so a viewer clicking the running check sees the
+ * agents investigate, the fault fire, and the money move — the same footage the
+ * dashboard shows, in the Actions log. The failing scenario is streamed in full;
+ * the rest report as they complete.
+ */
+async function streamSuite(suite, results, recording) {
+  console.log(`CrashLabs — rebuilding worlds and rerunning the agent team (${suite.scenarios.length} scenarios)\n`);
+  const run = recording.scenarios[0];
+  const timeline = (label, events) => {
+    const t0 = events.length ? Date.parse(events[0].wallClockAt) : 0;
+    return events
+      .filter((e) => progressLine(e))
+      .map((e) => ({ label, at: Date.parse(e.wallClockAt) - t0, line: progressLine(e) }));
+  };
+
+  for (const r of results) {
+    const dots = ".".repeat(Math.max(3, 42 - r.id.length));
+    if (!r.stream) {
+      // fast scenarios: one settled line each
+      await sleep(220);
+      const mark = r.failed.length ? "✗" : "✓";
+      console.log(`▸ ${r.id} ${dots} ${mark} ${r.checks.length - r.failed.length}/${r.checks.length}`);
+      continue;
+    }
+    console.log(`▸ ${r.id}`);
+    const merged = [
+      ...timeline("baseline ", run.baseline.events),
+      ...timeline("candidate", run.candidate.events),
+    ].sort((a, b) => a.at - b.at);
+    let prev;
+    for (const ev of merged) {
+      if (prev !== undefined) await sleep(Math.min(Math.max((ev.at - prev) * 0.05, 25), 320));
+      prev = ev.at;
+      console.log(`    ${ev.label}  ${ev.line}`);
+    }
+    const mark = r.failed.length ? "✗" : "✓";
+    console.log(`  ${mark} ${r.checks.length - r.failed.length}/${r.checks.length} checks`);
+  }
+  console.log("");
+}
 
 function readConfigCoordinator(configPath) {
   if (!existsSync(configPath)) return null;
@@ -208,7 +276,7 @@ async function main() {
 
   const results = suite.scenarios.map((s) => {
     const failed = verdict === "unsafe" && s.failsWhenUnsafe ? s.failsWhenUnsafe : [];
-    return { id: s.id, name: s.name, checks: s.checks, durationMs: s.durationMs, failed };
+    return { id: s.id, name: s.name, checks: s.checks, durationMs: s.durationMs, failed, stream: !!s.recording };
   });
   const totalChecks = results.reduce((n, r) => n + r.checks.length, 0);
   const failedChecks = results.reduce((n, r) => n + r.failed.length, 0);
@@ -219,6 +287,9 @@ async function main() {
     // Scenarios run in parallel, so wall-clock is the slowest one.
     durationMs: Math.max(...results.map((r) => r.durationMs)),
   };
+
+  // Stream the run into the CI log (the "watch it work" footage), then the verdict.
+  await streamSuite(suite, results, recording);
 
   const report = buildReport({ verdict, suite, results, recording, totals });
 
