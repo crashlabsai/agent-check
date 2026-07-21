@@ -1,0 +1,16 @@
+{
+  "name": "CrashLabs",
+  "url": "https://crashlabs.ai",
+  "description": "Behavioral testing for AI agents. Reruns your agent team in simulated worlds with fault injection and blocks merges that break behavior.",
+  "public": false,
+  "default_permissions": {
+    "checks": "write",
+    "pull_requests": "write",
+    "contents": "read",
+    "metadata": "read"
+  },
+  "default_events": ["pull_request"],
+  "hook_attributes": {
+    "active": false
+  }
+}
