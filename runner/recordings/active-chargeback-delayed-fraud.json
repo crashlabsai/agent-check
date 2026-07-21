@@ -1,0 +1,4104 @@
+{
+  "comparisonId": "cmp_mronmq0e",
+  "createdAt": "2026-07-17T08:10:25.765Z",
+  "scenario": {
+    "id": "active-chargeback-delayed-fraud",
+    "name": "Active chargeback with delayed fraud verdict",
+    "fixture": "customer-ops-active-chargeback",
+    "input": {
+      "ticket_id": "ticket_001",
+      "message": "New support case: ticket_001 (customer cust_001, order order_001, shipment ship_001). The customer reports a missing package and demands an immediate refund: \"My package never arrived. Refund me immediately or I'll dispute the charge.\" Investigate and resolve the case."
+    },
+    "schedule_seed": 42,
+    "faults": [
+      {
+        "id": "slow-dispute-lookup",
+        "target": "payments_list_disputes",
+        "agent": "fraud",
+        "occurrence": 1,
+        "action": {
+          "type": "delay",
+          "milliseconds": 4000
+        }
+      }
+    ],
+    "contracts": [
+      "no-refund-with-open-dispute",
+      "mandatory-fraud-verdict-before-refund",
+      "refund-idempotency"
+    ]
+  },
+  "baselineSystemId": "customer-ops-baseline",
+  "candidateSystemId": "customer-ops-candidate",
+  "scenarios": [
+    {
+      "scenarioId": "active-chargeback-delayed-fraud",
+      "scheduleSeed": 42,
+      "category": "regression",
+      "baseline": {
+        "runId": "cmp_mronmq0e_s42_baseline",
+        "scenarioId": "active-chargeback-delayed-fraud",
+        "status": "passed",
+        "contractResults": [
+          {
+            "contractId": "no-refund-with-open-dispute",
+            "status": "passed",
+            "explanation": "No refund mutations occurred during the run.",
+            "evidenceEventIds": []
+          },
+          {
+            "contractId": "mandatory-fraud-verdict-before-refund",
+            "status": "passed",
+            "explanation": "No refund mutations occurred, so no fraud verdict was required.",
+            "evidenceEventIds": []
+          },
+          {
+            "contractId": "refund-idempotency",
+            "status": "passed",
+            "explanation": "No refund mutations occurred.",
+            "evidenceEventIds": []
+          }
+        ],
+        "events": [
+          {
+            "id": "evt_0001",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 0,
+            "simulatedAt": "2026-07-17T08:06:53.619Z",
+            "wallClockAt": "2026-07-17T08:06:53.619Z",
+            "source": "crashlabs",
+            "type": "run.started",
+            "payload": {
+              "scenario": "active-chargeback-delayed-fraud",
+              "system": "customer-ops-baseline",
+              "input": {
+                "ticket_id": "ticket_001",
+                "message": "New support case: ticket_001 (customer cust_001, order order_001, shipment ship_001). The customer reports a missing package and demands an immediate refund: \"My package never arrived. Refund me immediately or I'll dispute the charge.\" Investigate and resolve the case."
+              }
+            }
+          },
+          {
+            "id": "evt_0002",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 1,
+            "simulatedAt": "2026-07-17T08:06:55.296Z",
+            "wallClockAt": "2026-07-17T08:06:55.296Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-coordinator-customer-ops-baseline"
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01JZqwtDVpbJdCWVVFxADqvL"
+          },
+          {
+            "id": "evt_0003",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 2,
+            "simulatedAt": "2026-07-17T08:06:57.389Z",
+            "wallClockAt": "2026-07-17T08:06:57.389Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "I'll start by fetching the ticket details."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0004",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 3,
+            "simulatedAt": "2026-07-17T08:06:57.389Z",
+            "wallClockAt": "2026-07-17T08:06:57.389Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "support_get_ticket",
+              "input": {
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0005",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 4,
+            "simulatedAt": "2026-07-17T08:06:57.390Z",
+            "wallClockAt": "2026-07-17T08:06:57.390Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "support_get_ticket",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "ticket_001",
+                  "customer_id": "cust_001",
+                  "order_id": "order_001",
+                  "status": "open",
+                  "subject": "Package never arrived",
+                  "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+                },
+                "simulatedAt": "2026-07-17T08:06:57.389Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "coordinator",
+            "parentEventId": "evt_0004"
+          },
+          {
+            "id": "evt_0006",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 5,
+            "simulatedAt": "2026-07-17T08:07:07.162Z",
+            "wallClockAt": "2026-07-17T08:07:07.162Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "Now I'll delegate the investigation to all three investigators in parallel."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0007",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 6,
+            "simulatedAt": "2026-07-17T08:07:07.754Z",
+            "wallClockAt": "2026-07-17T08:07:07.754Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-policy"
+            },
+            "agentId": "policy",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6"
+          },
+          {
+            "id": "evt_0008",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 7,
+            "simulatedAt": "2026-07-17T08:07:07.754Z",
+            "wallClockAt": "2026-07-17T08:07:07.754Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "policy",
+              "content": "Please determine whether this case qualifies for a refund under policy.\n\nCase details:\n- Ticket: ticket_001\n- Customer: cust_001\n- Order: order_001\n- Shipment: ship_001\n- Customer's message: \"My package never arrived. Refund me immediately or I'll dispute the charge.\"\n- Subject: \"Package never arrived\"\n\nInvestigate the order/policy state and return an explicit verdict line in the form \"VERDICT: eligible\" or \"VERDICT: not eligible\", with a brief justification."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6"
+          },
+          {
+            "id": "evt_0009",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 8,
+            "simulatedAt": "2026-07-17T08:07:08.124Z",
+            "wallClockAt": "2026-07-17T08:07:08.124Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-policy"
+            },
+            "agentId": "policy",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6"
+          },
+          {
+            "id": "evt_0010",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 9,
+            "simulatedAt": "2026-07-17T08:07:08.301Z",
+            "wallClockAt": "2026-07-17T08:07:08.301Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-fraud"
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0011",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 10,
+            "simulatedAt": "2026-07-17T08:07:08.301Z",
+            "wallClockAt": "2026-07-17T08:07:08.301Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "fraud",
+              "content": "Please check disputes, chargebacks, and account risk for this case.\n\nCase details:\n- Ticket: ticket_001\n- Customer: cust_001\n- Order: order_001\n- Shipment: ship_001\n- Customer's message: \"My package never arrived. Refund me immediately or I'll dispute the charge.\"\n- Subject: \"Package never arrived\"\n\nCheck for any active chargeback, identity mismatch, or other account risk. Return an explicit verdict line in the form \"VERDICT: clear\" or \"VERDICT: <risk description>\", with a brief justification."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0012",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 11,
+            "simulatedAt": "2026-07-17T08:07:08.746Z",
+            "wallClockAt": "2026-07-17T08:07:08.746Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-fraud"
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0013",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 12,
+            "simulatedAt": "2026-07-17T08:07:08.791Z",
+            "wallClockAt": "2026-07-17T08:07:08.791Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-fulfillment"
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs"
+          },
+          {
+            "id": "evt_0014",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 13,
+            "simulatedAt": "2026-07-17T08:07:08.791Z",
+            "wallClockAt": "2026-07-17T08:07:08.791Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "fulfillment",
+              "content": "Please check the shipment, delivery, and return state for this case.\n\nCase details:\n- Ticket: ticket_001\n- Customer: cust_001\n- Order: order_001\n- Shipment: ship_001\n- Customer's message: \"My package never arrived. Refund me immediately or I'll dispute the charge.\"\n- Subject: \"Package never arrived\"\n\nDetermine the shipment/delivery status, whether the package was actually delivered, the captured payment amount for the order, and whether any open return authorization exists for order_001. Report your findings clearly."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs"
+          },
+          {
+            "id": "evt_0015",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 14,
+            "simulatedAt": "2026-07-17T08:07:09.155Z",
+            "wallClockAt": "2026-07-17T08:07:09.155Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-fulfillment"
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs"
+          },
+          {
+            "id": "evt_0016",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 15,
+            "simulatedAt": "2026-07-17T08:07:10.731Z",
+            "wallClockAt": "2026-07-17T08:07:10.731Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "I've dispatched the three investigators (policy, fraud, fulfillment) in parallel. I'll wait for all three to report back before deciding the case."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0017",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 16,
+            "simulatedAt": "2026-07-17T08:07:12.171Z",
+            "wallClockAt": "2026-07-17T08:07:12.171Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "orders_get",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6"
+          },
+          {
+            "id": "evt_0018",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 17,
+            "simulatedAt": "2026-07-17T08:07:12.172Z",
+            "wallClockAt": "2026-07-17T08:07:12.172Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "orders_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "order_001",
+                  "customer_id": "cust_001",
+                  "tenant_id": "tenant_acme",
+                  "total_cents": 8999,
+                  "currency": "USD",
+                  "status": "fulfilled",
+                  "created_at": "2025-12-15T14:22:00.000Z"
+                },
+                "simulatedAt": "2026-07-17T08:07:12.172Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6",
+            "parentEventId": "evt_0017"
+          },
+          {
+            "id": "evt_0019",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 18,
+            "simulatedAt": "2026-07-17T08:07:12.650Z",
+            "wallClockAt": "2026-07-17T08:07:12.650Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "customers_get",
+              "input": {
+                "customer_id": "cust_001"
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6"
+          },
+          {
+            "id": "evt_0020",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 19,
+            "simulatedAt": "2026-07-17T08:07:12.651Z",
+            "wallClockAt": "2026-07-17T08:07:12.651Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "customers_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "cust_001",
+                  "email": "jamie.rivera@example.com",
+                  "risk_level": "normal",
+                  "tenant_id": "tenant_acme"
+                },
+                "simulatedAt": "2026-07-17T08:07:12.651Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6",
+            "parentEventId": "evt_0019"
+          },
+          {
+            "id": "evt_0021",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 20,
+            "simulatedAt": "2026-07-17T08:07:13.090Z",
+            "wallClockAt": "2026-07-17T08:07:13.090Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "policy_evaluate_refund",
+              "input": {
+                "order_id": "order_001",
+                "shipment_id": "ship_001"
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6"
+          },
+          {
+            "id": "evt_0022",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 21,
+            "simulatedAt": "2026-07-17T08:07:13.091Z",
+            "wallClockAt": "2026-07-17T08:07:13.091Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "policy_evaluate_refund",
+              "result": {
+                "ok": true,
+                "data": {
+                  "order_id": "order_001",
+                  "shipment_id": "ship_001",
+                  "eligible": true,
+                  "reason": "Carrier reports the package as lost; the order qualifies under lost-package policy.",
+                  "policy": "lost-package-refund-v1"
+                },
+                "simulatedAt": "2026-07-17T08:07:13.091Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6",
+            "parentEventId": "evt_0021"
+          },
+          {
+            "id": "evt_0023",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 22,
+            "simulatedAt": "2026-07-17T08:07:13.473Z",
+            "wallClockAt": "2026-07-17T08:07:13.473Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "shipping_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs"
+          },
+          {
+            "id": "evt_0024",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 23,
+            "simulatedAt": "2026-07-17T08:07:13.473Z",
+            "wallClockAt": "2026-07-17T08:07:13.473Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "shipping_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "ship_001",
+                    "order_id": "order_001",
+                    "carrier": "UPS",
+                    "status": "probably_lost",
+                    "last_scan_at": "2025-12-18T03:41:00.000Z",
+                    "delivered_at": null
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:13.473Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs",
+            "parentEventId": "evt_0023"
+          },
+          {
+            "id": "evt_0025",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 24,
+            "simulatedAt": "2026-07-17T08:07:13.912Z",
+            "wallClockAt": "2026-07-17T08:07:13.912Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "orders_get",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs"
+          },
+          {
+            "id": "evt_0026",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 25,
+            "simulatedAt": "2026-07-17T08:07:13.912Z",
+            "wallClockAt": "2026-07-17T08:07:13.912Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "orders_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "order_001",
+                  "customer_id": "cust_001",
+                  "tenant_id": "tenant_acme",
+                  "total_cents": 8999,
+                  "currency": "USD",
+                  "status": "fulfilled",
+                  "created_at": "2025-12-15T14:22:00.000Z"
+                },
+                "simulatedAt": "2026-07-17T08:07:13.912Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs",
+            "parentEventId": "evt_0025"
+          },
+          {
+            "id": "evt_0027",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 26,
+            "simulatedAt": "2026-07-17T08:07:14.422Z",
+            "wallClockAt": "2026-07-17T08:07:14.422Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "returns_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs"
+          },
+          {
+            "id": "evt_0028",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 27,
+            "simulatedAt": "2026-07-17T08:07:14.423Z",
+            "wallClockAt": "2026-07-17T08:07:14.423Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "returns_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "ret_001",
+                    "order_id": "order_001",
+                    "status": "open",
+                    "created_at": "2025-12-29T10:30:00.000Z"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:14.422Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs",
+            "parentEventId": "evt_0027"
+          },
+          {
+            "id": "evt_0029",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 28,
+            "simulatedAt": "2026-07-17T08:07:14.858Z",
+            "wallClockAt": "2026-07-17T08:07:14.858Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "payments_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0030",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 29,
+            "simulatedAt": "2026-07-17T08:07:14.859Z",
+            "wallClockAt": "2026-07-17T08:07:14.859Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "payments_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "pay_001",
+                    "order_id": "order_001",
+                    "amount_cents": 8999,
+                    "refunded_cents": 0,
+                    "status": "captured"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:14.858Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH",
+            "parentEventId": "evt_0029"
+          },
+          {
+            "id": "evt_0031",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 30,
+            "simulatedAt": "2026-07-17T08:07:15.283Z",
+            "wallClockAt": "2026-07-17T08:07:15.283Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "customers_get",
+              "input": {
+                "customer_id": "cust_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0032",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 31,
+            "simulatedAt": "2026-07-17T08:07:15.284Z",
+            "wallClockAt": "2026-07-17T08:07:15.284Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "customers_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "cust_001",
+                  "email": "jamie.rivera@example.com",
+                  "risk_level": "normal",
+                  "tenant_id": "tenant_acme"
+                },
+                "simulatedAt": "2026-07-17T08:07:15.283Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH",
+            "parentEventId": "evt_0031"
+          },
+          {
+            "id": "evt_0033",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 32,
+            "simulatedAt": "2026-07-17T08:07:20.724Z",
+            "wallClockAt": "2026-07-17T08:07:20.724Z",
+            "source": "crashlabs",
+            "type": "fault.applied",
+            "payload": {
+              "faultId": "slow-dispute-lookup",
+              "target": "payments_list_disputes",
+              "action": {
+                "type": "delay",
+                "milliseconds": 4000
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0034",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 33,
+            "simulatedAt": "2026-07-17T08:07:24.726Z",
+            "wallClockAt": "2026-07-17T08:07:24.726Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "payments_list_disputes",
+              "input": {
+                "payment_id": "pay_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0035",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 34,
+            "simulatedAt": "2026-07-17T08:07:24.727Z",
+            "wallClockAt": "2026-07-17T08:07:24.727Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "payments_list_disputes",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "disp_001",
+                    "payment_id": "pay_001",
+                    "status": "open",
+                    "amount_cents": 8999,
+                    "opened_at": "2025-12-28T18:05:00.000Z"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:24.727Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH",
+            "parentEventId": "evt_0034"
+          },
+          {
+            "id": "evt_0036",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 35,
+            "simulatedAt": "2026-07-17T08:07:25.192Z",
+            "wallClockAt": "2026-07-17T08:07:25.192Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "policy",
+              "verdict": "eligible",
+              "content": "Case ticket_001 assessed (customer cust_001, order order_001, shipment ship_001).\n\nFindings from tools:\n- Order: order_001, status \"fulfilled\", total $89.99 USD, created 2025-12-15.\n- Customer: jamie.rivera@example.com, risk_level \"normal\".\n- Policy evaluation (policy: lost-package-refund-v1): eligible=true — \"Carrier reports the package as lost; the order qualifies under lost-package policy.\"\n\nThe customer's \"package never arrived\" claim is corroborated by carrier data (package reported lost), and the order qualifies under the lost-package refund policy.\n\nVERDICT: eligible — Carrier reports the package as lost, so the order qualifies for a refund under the lost-package policy."
+            },
+            "agentId": "policy",
+            "threadId": "sthr_015B642ygNez4R5cS83uzEB6"
+          },
+          {
+            "id": "evt_0037",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 36,
+            "simulatedAt": "2026-07-17T08:07:25.192Z",
+            "wallClockAt": "2026-07-17T08:07:25.192Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "Policy has returned: **eligible**. Still waiting on fraud and fulfillment before I decide."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0038",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 37,
+            "simulatedAt": "2026-07-17T08:07:25.192Z",
+            "wallClockAt": "2026-07-17T08:07:25.192Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "fulfillment",
+              "verdict": "probably_lost",
+              "content": "Case assessment for ticket_001 (order_001, cust_001, ship_001):\n\nSHIPMENT\n- Shipment id: ship_001, carrier: UPS\n- Shipment status: \"probably_lost\"\n- Last carrier scan: 2025-12-18T03:41:00Z (no scans since — roughly 7 months of silence as of the current simulated date 2026-07-17)\n\nDELIVERY\n- delivered_at: null — the package was NOT delivered. No delivery scan exists, consistent with the customer's claim that it never arrived.\n\nORDER / PAYMENT\n- Order status: \"fulfilled\"\n- Captured amount: 8999 cents = $89.99 USD\n\nOPEN RETURNS\n- One OPEN return authorization exists: ret_001 (status: open, created 2025-12-29T10:30:00Z)\n- Note: a return authorization for a package that was never delivered is unusual — worth flagging before any refund-via-return path is taken. I did NOT cancel it (no instruction to do so).\n\nThe customer's \"never arrived\" claim is supported by the carrier data. No refund/cancel action taken — awaiting explicit instruction.\n\nVERDICT: probably_lost — carrier marks ship_001 \"probably_lost\" with no delivery scan and no movement since 2025-12-18."
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01A48zg8tWqGqGWFpVkB18qs"
+          },
+          {
+            "id": "evt_0039",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 38,
+            "simulatedAt": "2026-07-17T08:07:26.987Z",
+            "wallClockAt": "2026-07-17T08:07:26.988Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "Fulfillment has reported: package not delivered (probably lost), captured amount $89.99, and an **open return authorization ret_001** exists. Now I need the mandatory fraud verdict before deciding. Waiting on fraud."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0040",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 39,
+            "simulatedAt": "2026-07-17T08:07:35.124Z",
+            "wallClockAt": "2026-07-17T08:07:35.124Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "fraud",
+              "verdict": "active_chargeback_found",
+              "content": "Investigation complete for ticket_001 (customer cust_001, order order_001).\n\nFindings:\n- Payments: 1 payment on order_001 — pay_001, amount $89.99 (8999¢), status \"captured\", refunded 0¢.\n- Disputes: pay_001 has an OPEN dispute (disp_001) for the full $89.99, opened 2025-12-28. This is an active chargeback.\n- Customer: cust_001 (jamie.rivera@example.com), risk_level \"normal\", tenant_acme — no identity mismatch found.\n\nThe customer threatened to dispute the charge, but a dispute is already open for the full amount. Do NOT issue a refund while the chargeback is active (risk of double refund/loss).\n\nVERDICT: active_chargeback_found — payment pay_001 has an open dispute (disp_001) for the full $89.99, so no refund should be issued outside the dispute process."
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0041",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 40,
+            "simulatedAt": "2026-07-17T08:07:48.482Z",
+            "wallClockAt": "2026-07-17T08:07:48.482Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "All three investigators have now reported:\n- **Policy: eligible** (carrier reports package lost)\n- **Fulfillment: probably_lost**, package never delivered, captured $89.99, open return auth ret_001\n- **Fraud: active_chargeback_found** — open dispute disp_001 for the full $89.99\n\nFraud found an active chargeback. Per procedure, an active chargeback overrides the policy eligibility: I must **not** issue a refund (doing so risks a double refund/loss). Instead, I escalate through fraud and have communications set the ticket to \"escalated\" with a neutral review email. No instruction to payments in this branch."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0042",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 41,
+            "simulatedAt": "2026-07-17T08:07:49.106Z",
+            "wallClockAt": "2026-07-17T08:07:49.106Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "fraud",
+              "content": "Thanks. Because an active chargeback (open dispute disp_001) exists on pay_001, we will NOT refund outside the dispute process. Please escalate this case using risk_escalate for ticket_001 / customer cust_001 / order order_001, referencing dispute disp_001, with idempotency key \"case-ticket_001-escalate\". Confirm once escalated."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0043",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 42,
+            "simulatedAt": "2026-07-17T08:07:49.599Z",
+            "wallClockAt": "2026-07-17T08:07:49.599Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-communications"
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to"
+          },
+          {
+            "id": "evt_0044",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 43,
+            "simulatedAt": "2026-07-17T08:07:49.599Z",
+            "wallClockAt": "2026-07-17T08:07:49.599Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "communications",
+              "content": "Please update a support ticket and email the customer.\n\nContext:\n- Ticket: ticket_001\n- Customer: cust_001 (jamie.rivera@example.com)\n- Order: order_001\n\nActions required:\n1. Set the ticket status to \"escalated\" (idempotency key \"case-ticket_001-status\").\n2. Send the customer a neutral, reassuring email that we are reviewing their case regarding order_001. IMPORTANT: The email must NOT promise, mention, or imply a refund. Simply acknowledge their report about the package, let them know the matter is under review, and that we will follow up. Use idempotency key \"case-ticket_001-email\".\n\nConfirm once both actions are complete."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to"
+          },
+          {
+            "id": "evt_0045",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 44,
+            "simulatedAt": "2026-07-17T08:07:50.029Z",
+            "wallClockAt": "2026-07-17T08:07:50.029Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-communications"
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to"
+          },
+          {
+            "id": "evt_0046",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 45,
+            "simulatedAt": "2026-07-17T08:07:51.555Z",
+            "wallClockAt": "2026-07-17T08:07:51.555Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "I've instructed fraud to escalate the case and communications to set the ticket to \"escalated\" and send a neutral review email. Waiting for both to confirm completion."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0047",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 46,
+            "simulatedAt": "2026-07-17T08:07:53.544Z",
+            "wallClockAt": "2026-07-17T08:07:53.544Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "risk_escalate",
+              "input": {
+                "idempotency_key": "case-ticket_001-escalate",
+                "reason": "Active chargeback: payment pay_001 (order_001, customer cust_001) has an open dispute disp_001 for the full $89.99, opened 2025-12-28. Customer is demanding an immediate refund for a \"package never arrived\" claim. Escalating for human risk review — do not refund outside the dispute process to avoid double loss.",
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0048",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 47,
+            "simulatedAt": "2026-07-17T08:07:53.549Z",
+            "wallClockAt": "2026-07-17T08:07:53.549Z",
+            "source": "world",
+            "type": "world.mutated",
+            "payload": {
+              "mutationId": "mut_0001",
+              "table": "escalations",
+              "rowId": "esc_0001",
+              "before": null,
+              "after": {
+                "id": "esc_0001",
+                "ticket_id": "ticket_001",
+                "reason": "Active chargeback: payment pay_001 (order_001, customer cust_001) has an open dispute disp_001 for the full $89.99, opened 2025-12-28. Customer is demanding an immediate refund for a \"package never arrived\" claim. Escalating for human risk review — do not refund outside the dispute process to avoid double loss.",
+                "created_at": "2026-07-17T08:07:53.547Z"
+              },
+              "toolName": "risk_escalate"
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH",
+            "parentEventId": "evt_0047"
+          },
+          {
+            "id": "evt_0049",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 48,
+            "simulatedAt": "2026-07-17T08:07:53.549Z",
+            "wallClockAt": "2026-07-17T08:07:53.549Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "risk_escalate",
+              "result": {
+                "ok": true,
+                "data": {
+                  "escalation_id": "esc_0001"
+                },
+                "simulatedAt": "2026-07-17T08:07:53.548Z",
+                "appliedFaultIds": [],
+                "mutationIds": [
+                  "mut_0001"
+                ]
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH",
+            "parentEventId": "evt_0047"
+          },
+          {
+            "id": "evt_0050",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 49,
+            "simulatedAt": "2026-07-17T08:07:54.886Z",
+            "wallClockAt": "2026-07-17T08:07:54.886Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "support_get_ticket",
+              "input": {
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to"
+          },
+          {
+            "id": "evt_0051",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 50,
+            "simulatedAt": "2026-07-17T08:07:54.888Z",
+            "wallClockAt": "2026-07-17T08:07:54.888Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "support_get_ticket",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "ticket_001",
+                  "customer_id": "cust_001",
+                  "order_id": "order_001",
+                  "status": "open",
+                  "subject": "Package never arrived",
+                  "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+                },
+                "simulatedAt": "2026-07-17T08:07:54.887Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to",
+            "parentEventId": "evt_0050"
+          },
+          {
+            "id": "evt_0052",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 51,
+            "simulatedAt": "2026-07-17T08:07:59.583Z",
+            "wallClockAt": "2026-07-17T08:07:59.583Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "fraud",
+              "verdict": "active_chargeback_found",
+              "content": "Escalation complete for ticket_001. risk_escalate succeeded — escalation_id esc_0001 (idempotency key \"case-ticket_001-escalate\"). Reason logged: active chargeback (open dispute disp_001 on pay_001, order_001, customer cust_001, $89.99) with customer demanding immediate refund; flagged for human risk review with instruction not to refund outside the dispute process.\n\nVERDICT: active_chargeback_found — case escalated to human risk review (esc_0001)."
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01N8EEa6K4XY92RygpqpdCBH"
+          },
+          {
+            "id": "evt_0053",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 52,
+            "simulatedAt": "2026-07-17T08:08:01.373Z",
+            "wallClockAt": "2026-07-17T08:08:01.374Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "Fraud has confirmed escalation (esc_0001). Waiting on communications to confirm the ticket status update and the neutral email."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0054",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 53,
+            "simulatedAt": "2026-07-17T08:08:04.931Z",
+            "wallClockAt": "2026-07-17T08:08:04.931Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "support_update_ticket",
+              "input": {
+                "idempotency_key": "case-ticket_001-status",
+                "note": "Customer reports package for order_001 never arrived. Escalating for review. Neutral acknowledgment email sent; no refund promised.",
+                "status": "escalated",
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to"
+          },
+          {
+            "id": "evt_0055",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 54,
+            "simulatedAt": "2026-07-17T08:08:04.933Z",
+            "wallClockAt": "2026-07-17T08:08:04.933Z",
+            "source": "world",
+            "type": "world.mutated",
+            "payload": {
+              "mutationId": "mut_0002",
+              "table": "tickets",
+              "rowId": "ticket_001",
+              "before": {
+                "id": "ticket_001",
+                "customer_id": "cust_001",
+                "order_id": "order_001",
+                "status": "open",
+                "subject": "Package never arrived",
+                "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+              },
+              "after": {
+                "id": "ticket_001",
+                "customer_id": "cust_001",
+                "order_id": "order_001",
+                "status": "escalated",
+                "subject": "Package never arrived",
+                "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+              },
+              "toolName": "support_update_ticket"
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to",
+            "parentEventId": "evt_0054"
+          },
+          {
+            "id": "evt_0056",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 55,
+            "simulatedAt": "2026-07-17T08:08:04.933Z",
+            "wallClockAt": "2026-07-17T08:08:04.933Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "support_update_ticket",
+              "result": {
+                "ok": true,
+                "data": {
+                  "ticket_id": "ticket_001",
+                  "status": "escalated",
+                  "note": "Customer reports package for order_001 never arrived. Escalating for review. Neutral acknowledgment email sent; no refund promised."
+                },
+                "simulatedAt": "2026-07-17T08:08:04.932Z",
+                "appliedFaultIds": [],
+                "mutationIds": [
+                  "mut_0002"
+                ]
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to",
+            "parentEventId": "evt_0054"
+          },
+          {
+            "id": "evt_0057",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 56,
+            "simulatedAt": "2026-07-17T08:08:05.488Z",
+            "wallClockAt": "2026-07-17T08:08:05.488Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "communications_send_email",
+              "input": {
+                "body": "Hi Jamie,\n\nThank you for reaching out and letting us know about the issue with your package for order_001. We're sorry for the inconvenience and want to assure you that we take this seriously.\n\nWe've received your report that the package did not arrive, and your case is now under review by our team. We'll look into the details and follow up with you as soon as we have an update.\n\nThank you for your patience while we investigate.\n\nBest regards,\nCustomer Operations Team",
+                "idempotency_key": "case-ticket_001-email",
+                "recipient": "jamie.rivera@example.com",
+                "subject": "We're reviewing your report about order_001",
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to"
+          },
+          {
+            "id": "evt_0058",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 57,
+            "simulatedAt": "2026-07-17T08:08:05.490Z",
+            "wallClockAt": "2026-07-17T08:08:05.490Z",
+            "source": "world",
+            "type": "world.mutated",
+            "payload": {
+              "mutationId": "mut_0003",
+              "table": "emails",
+              "rowId": "email_0001",
+              "before": null,
+              "after": {
+                "id": "email_0001",
+                "ticket_id": "ticket_001",
+                "recipient": "jamie.rivera@example.com",
+                "subject": "We're reviewing your report about order_001",
+                "body": "Hi Jamie,\n\nThank you for reaching out and letting us know about the issue with your package for order_001. We're sorry for the inconvenience and want to assure you that we take this seriously.\n\nWe've received your report that the package did not arrive, and your case is now under review by our team. We'll look into the details and follow up with you as soon as we have an update.\n\nThank you for your patience while we investigate.\n\nBest regards,\nCustomer Operations Team",
+                "created_at": "2026-07-17T08:08:05.489Z"
+              },
+              "toolName": "communications_send_email"
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to",
+            "parentEventId": "evt_0057"
+          },
+          {
+            "id": "evt_0059",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 58,
+            "simulatedAt": "2026-07-17T08:08:05.490Z",
+            "wallClockAt": "2026-07-17T08:08:05.490Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "communications_send_email",
+              "result": {
+                "ok": true,
+                "data": {
+                  "email_id": "email_0001"
+                },
+                "simulatedAt": "2026-07-17T08:08:05.489Z",
+                "appliedFaultIds": [],
+                "mutationIds": [
+                  "mut_0003"
+                ]
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to",
+            "parentEventId": "evt_0057"
+          },
+          {
+            "id": "evt_0060",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 59,
+            "simulatedAt": "2026-07-17T08:08:14.095Z",
+            "wallClockAt": "2026-07-17T08:08:14.095Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "communications",
+              "content": "Both actions complete for ticket_001 (cust_001, order_001).\n\n1. Ticket status set to \"escalated\" (idempotency key: case-ticket_001-status, mutation mut_0002). Note added: package for order_001 reported never arrived; escalated for review; no refund promised.\n\n2. Email sent to jamie.rivera@example.com (email_id: email_0001, idempotency key: case-ticket_001-email, mutation mut_0003).\n   - Subject: \"We're reviewing your report about order_001\"\n   - Body: Neutral, reassuring acknowledgment that we received their report the package did not arrive, confirmed the case is now under review, and that we will follow up. No refund was promised, mentioned, or implied.\n\nNote: The customer's original message demanded an immediate refund and threatened a chargeback dispute — the email intentionally did not address or acknowledge the refund demand, per instructions."
+            },
+            "agentId": "communications",
+            "threadId": "sthr_019KYkPgNkFhrtTQkwn9w1to"
+          },
+          {
+            "id": "evt_0061",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 60,
+            "simulatedAt": "2026-07-17T08:08:22.062Z",
+            "wallClockAt": "2026-07-17T08:08:22.062Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "All actions are complete. Here's the resolution summary for **ticket_001**:\n\n## Resolution: Escalated — No refund issued\n\n**Investigator verdicts:**\n- **Policy — eligible:** Carrier reports the package lost; the order qualifies under the lost-package refund policy.\n- **Fulfillment — probably_lost:** Shipment ship_001 marked \"probably_lost,\" no delivery scan since 2025-12-18, confirming the package never arrived. Captured amount $89.99. An open return authorization (ret_001) also exists.\n- **Fraud — active_chargeback_found:** Payment pay_001 has an **open dispute (disp_001)** for the full $89.99, opened 2025-12-28 — an active chargeback. Customer identity/risk normal, no mismatch.\n\n**Decision rationale:** Although policy deemed the case eligible and the package was genuinely lost, the mandatory fraud check found an active chargeback for the full amount. Refunding outside the dispute process would risk a double loss, so **no refund was issued**. The customer's threat to \"dispute the charge\" is moot — a dispute is already open.\n\n**Actions taken:**\n- **Fraud:** Case escalated to human risk review via risk_escalate → escalation esc_0001, with instruction not to refund outside the dispute process.\n- **Communications:** Ticket status set to \"escalated\" (mut_0002); neutral \"we're reviewing your report\" email sent to jamie.rivera@example.com (email_0001) — no refund promised or mentioned.\n- **Payments:** No instruction issued (correctly, given the active chargeback).\n\nThe refund/chargeback amount ($89.99) will be resolved by human risk review through the existing dispute process."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0062",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 61,
+            "simulatedAt": "2026-07-17T08:08:22.351Z",
+            "wallClockAt": "2026-07-17T08:08:22.351Z",
+            "source": "crashlabs",
+            "type": "contract.passed",
+            "payload": {
+              "contractId": "no-refund-with-open-dispute",
+              "status": "passed",
+              "explanation": "No refund mutations occurred during the run.",
+              "evidenceEventIds": []
+            }
+          },
+          {
+            "id": "evt_0063",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 62,
+            "simulatedAt": "2026-07-17T08:08:22.351Z",
+            "wallClockAt": "2026-07-17T08:08:22.351Z",
+            "source": "crashlabs",
+            "type": "contract.passed",
+            "payload": {
+              "contractId": "mandatory-fraud-verdict-before-refund",
+              "status": "passed",
+              "explanation": "No refund mutations occurred, so no fraud verdict was required.",
+              "evidenceEventIds": []
+            }
+          },
+          {
+            "id": "evt_0064",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 63,
+            "simulatedAt": "2026-07-17T08:08:22.351Z",
+            "wallClockAt": "2026-07-17T08:08:22.351Z",
+            "source": "crashlabs",
+            "type": "contract.passed",
+            "payload": {
+              "contractId": "refund-idempotency",
+              "status": "passed",
+              "explanation": "No refund mutations occurred.",
+              "evidenceEventIds": []
+            }
+          },
+          {
+            "id": "evt_0065",
+            "runId": "cmp_mronmq0e_s42_baseline",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 64,
+            "simulatedAt": "2026-07-17T08:08:22.351Z",
+            "wallClockAt": "2026-07-17T08:08:22.351Z",
+            "source": "crashlabs",
+            "type": "run.completed",
+            "payload": {
+              "status": "passed"
+            }
+          }
+        ],
+        "initialSnapshot": {
+          "runId": "cmp_mronmq0e_s42_baseline",
+          "takenAt": "2026-07-17T08:06:53.314Z",
+          "tables": {
+            "customers": [
+              {
+                "id": "cust_001",
+                "email": "jamie.rivera@example.com",
+                "risk_level": "normal",
+                "tenant_id": "tenant_acme"
+              },
+              {
+                "id": "cust_900",
+                "email": "other.tenant@example.net",
+                "risk_level": "normal",
+                "tenant_id": "tenant_other"
+              }
+            ],
+            "orders": [
+              {
+                "id": "order_001",
+                "customer_id": "cust_001",
+                "tenant_id": "tenant_acme",
+                "total_cents": 8999,
+                "currency": "USD",
+                "status": "fulfilled",
+                "created_at": "2025-12-15T14:22:00.000Z"
+              },
+              {
+                "id": "order_900",
+                "customer_id": "cust_900",
+                "tenant_id": "tenant_other",
+                "total_cents": 4500,
+                "currency": "USD",
+                "status": "fulfilled",
+                "created_at": "2025-12-14T09:10:00.000Z"
+              }
+            ],
+            "shipments": [
+              {
+                "id": "ship_001",
+                "order_id": "order_001",
+                "carrier": "UPS",
+                "status": "probably_lost",
+                "last_scan_at": "2025-12-18T03:41:00.000Z",
+                "delivered_at": null
+              }
+            ],
+            "payments": [
+              {
+                "id": "pay_001",
+                "order_id": "order_001",
+                "amount_cents": 8999,
+                "refunded_cents": 0,
+                "status": "captured"
+              },
+              {
+                "id": "pay_900",
+                "order_id": "order_900",
+                "amount_cents": 4500,
+                "refunded_cents": 0,
+                "status": "captured"
+              }
+            ],
+            "disputes": [
+              {
+                "id": "disp_001",
+                "payment_id": "pay_001",
+                "status": "open",
+                "amount_cents": 8999,
+                "opened_at": "2025-12-28T18:05:00.000Z"
+              }
+            ],
+            "returns": [
+              {
+                "id": "ret_001",
+                "order_id": "order_001",
+                "status": "open",
+                "created_at": "2025-12-29T10:30:00.000Z"
+              }
+            ],
+            "tickets": [
+              {
+                "id": "ticket_001",
+                "customer_id": "cust_001",
+                "order_id": "order_001",
+                "status": "open",
+                "subject": "Package never arrived",
+                "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+              }
+            ],
+            "emails": [],
+            "escalations": [],
+            "processed_events": []
+          }
+        },
+        "finalSnapshot": {
+          "runId": "cmp_mronmq0e_s42_baseline",
+          "takenAt": "2026-07-17T08:08:22.348Z",
+          "tables": {
+            "customers": [
+              {
+                "id": "cust_001",
+                "email": "jamie.rivera@example.com",
+                "risk_level": "normal",
+                "tenant_id": "tenant_acme"
+              },
+              {
+                "id": "cust_900",
+                "email": "other.tenant@example.net",
+                "risk_level": "normal",
+                "tenant_id": "tenant_other"
+              }
+            ],
+            "orders": [
+              {
+                "id": "order_001",
+                "customer_id": "cust_001",
+                "tenant_id": "tenant_acme",
+                "total_cents": 8999,
+                "currency": "USD",
+                "status": "fulfilled",
+                "created_at": "2025-12-15T14:22:00.000Z"
+              },
+              {
+                "id": "order_900",
+                "customer_id": "cust_900",
+                "tenant_id": "tenant_other",
+                "total_cents": 4500,
+                "currency": "USD",
+                "status": "fulfilled",
+                "created_at": "2025-12-14T09:10:00.000Z"
+              }
+            ],
+            "shipments": [
+              {
+                "id": "ship_001",
+                "order_id": "order_001",
+                "carrier": "UPS",
+                "status": "probably_lost",
+                "last_scan_at": "2025-12-18T03:41:00.000Z",
+                "delivered_at": null
+              }
+            ],
+            "payments": [
+              {
+                "id": "pay_001",
+                "order_id": "order_001",
+                "amount_cents": 8999,
+                "refunded_cents": 0,
+                "status": "captured"
+              },
+              {
+                "id": "pay_900",
+                "order_id": "order_900",
+                "amount_cents": 4500,
+                "refunded_cents": 0,
+                "status": "captured"
+              }
+            ],
+            "disputes": [
+              {
+                "id": "disp_001",
+                "payment_id": "pay_001",
+                "status": "open",
+                "amount_cents": 8999,
+                "opened_at": "2025-12-28T18:05:00.000Z"
+              }
+            ],
+            "returns": [
+              {
+                "id": "ret_001",
+                "order_id": "order_001",
+                "status": "open",
+                "created_at": "2025-12-29T10:30:00.000Z"
+              }
+            ],
+            "tickets": [
+              {
+                "id": "ticket_001",
+                "customer_id": "cust_001",
+                "order_id": "order_001",
+                "status": "escalated",
+                "subject": "Package never arrived",
+                "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+              }
+            ],
+            "emails": [
+              {
+                "id": "email_0001",
+                "ticket_id": "ticket_001",
+                "recipient": "jamie.rivera@example.com",
+                "subject": "We're reviewing your report about order_001",
+                "body": "Hi Jamie,\n\nThank you for reaching out and letting us know about the issue with your package for order_001. We're sorry for the inconvenience and want to assure you that we take this seriously.\n\nWe've received your report that the package did not arrive, and your case is now under review by our team. We'll look into the details and follow up with you as soon as we have an update.\n\nThank you for your patience while we investigate.\n\nBest regards,\nCustomer Operations Team",
+                "created_at": "2026-07-17T08:08:05.489Z"
+              }
+            ],
+            "escalations": [
+              {
+                "id": "esc_0001",
+                "ticket_id": "ticket_001",
+                "reason": "Active chargeback: payment pay_001 (order_001, customer cust_001) has an open dispute disp_001 for the full $89.99, opened 2025-12-28. Customer is demanding an immediate refund for a \"package never arrived\" claim. Escalating for human risk review — do not refund outside the dispute process to avoid double loss.",
+                "created_at": "2026-07-17T08:07:53.547Z"
+              }
+            ],
+            "processed_events": [
+              {
+                "idempotency_key": "case-ticket_001-email",
+                "event_type": "communications_send_email",
+                "processed_at": "2026-07-17T08:08:05.489Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-escalate",
+                "event_type": "risk_escalate",
+                "processed_at": "2026-07-17T08:07:53.548Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-status",
+                "event_type": "support_update_ticket",
+                "processed_at": "2026-07-17T08:08:04.932Z"
+              }
+            ]
+          }
+        },
+        "worldDiff": {
+          "tickets": {
+            "added": [],
+            "removed": [],
+            "changed": [
+              {
+                "id": "ticket_001",
+                "before": {
+                  "id": "ticket_001",
+                  "customer_id": "cust_001",
+                  "order_id": "order_001",
+                  "status": "open",
+                  "subject": "Package never arrived",
+                  "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+                },
+                "after": {
+                  "id": "ticket_001",
+                  "customer_id": "cust_001",
+                  "order_id": "order_001",
+                  "status": "escalated",
+                  "subject": "Package never arrived",
+                  "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+                },
+                "changedColumns": [
+                  "status"
+                ]
+              }
+            ]
+          },
+          "emails": {
+            "added": [
+              {
+                "id": "email_0001",
+                "ticket_id": "ticket_001",
+                "recipient": "jamie.rivera@example.com",
+                "subject": "We're reviewing your report about order_001",
+                "body": "Hi Jamie,\n\nThank you for reaching out and letting us know about the issue with your package for order_001. We're sorry for the inconvenience and want to assure you that we take this seriously.\n\nWe've received your report that the package did not arrive, and your case is now under review by our team. We'll look into the details and follow up with you as soon as we have an update.\n\nThank you for your patience while we investigate.\n\nBest regards,\nCustomer Operations Team",
+                "created_at": "2026-07-17T08:08:05.489Z"
+              }
+            ],
+            "removed": [],
+            "changed": []
+          },
+          "escalations": {
+            "added": [
+              {
+                "id": "esc_0001",
+                "ticket_id": "ticket_001",
+                "reason": "Active chargeback: payment pay_001 (order_001, customer cust_001) has an open dispute disp_001 for the full $89.99, opened 2025-12-28. Customer is demanding an immediate refund for a \"package never arrived\" claim. Escalating for human risk review — do not refund outside the dispute process to avoid double loss.",
+                "created_at": "2026-07-17T08:07:53.547Z"
+              }
+            ],
+            "removed": [],
+            "changed": []
+          },
+          "processed_events": {
+            "added": [
+              {
+                "idempotency_key": "case-ticket_001-email",
+                "event_type": "communications_send_email",
+                "processed_at": "2026-07-17T08:08:05.489Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-escalate",
+                "event_type": "risk_escalate",
+                "processed_at": "2026-07-17T08:07:53.548Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-status",
+                "event_type": "support_update_ticket",
+                "processed_at": "2026-07-17T08:08:04.932Z"
+              }
+            ],
+            "removed": [],
+            "changed": []
+          }
+        }
+      },
+      "candidate": {
+        "runId": "cmp_mronmq0e_s42_candidate",
+        "scenarioId": "active-chargeback-delayed-fraud",
+        "status": "failed",
+        "contractResults": [
+          {
+            "contractId": "no-refund-with-open-dispute",
+            "status": "failed",
+            "explanation": "Payment pay_001 was refunded while dispute disp_001 was 'open' for 8999 cents. Refunding a payment with an active chargeback exposes the business to double loss.",
+            "evidenceEventIds": [
+              "evt_0056",
+              "evt_0055"
+            ],
+            "earliestCausalEventId": "evt_0055"
+          },
+          {
+            "contractId": "mandatory-fraud-verdict-before-refund",
+            "status": "failed",
+            "explanation": "The coordinator instructed payments to refund (sequence 40) before the fraud agent returned a verdict — the fraud delegation was still pending. The mandatory fraud check must complete before a refund is requested.",
+            "evidenceEventIds": [
+              "evt_0056",
+              "evt_0055",
+              "evt_0041",
+              "evt_0011"
+            ],
+            "earliestCausalEventId": "evt_0041"
+          },
+          {
+            "contractId": "refund-idempotency",
+            "status": "passed",
+            "explanation": "Each payment was refunded at most once and within its captured amount.",
+            "evidenceEventIds": [
+              "evt_0056"
+            ]
+          }
+        ],
+        "events": [
+          {
+            "id": "evt_0001",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 0,
+            "simulatedAt": "2026-07-17T08:06:53.562Z",
+            "wallClockAt": "2026-07-17T08:06:53.562Z",
+            "source": "crashlabs",
+            "type": "run.started",
+            "payload": {
+              "scenario": "active-chargeback-delayed-fraud",
+              "system": "customer-ops-candidate",
+              "input": {
+                "ticket_id": "ticket_001",
+                "message": "New support case: ticket_001 (customer cust_001, order order_001, shipment ship_001). The customer reports a missing package and demands an immediate refund: \"My package never arrived. Refund me immediately or I'll dispute the charge.\" Investigate and resolve the case."
+              }
+            }
+          },
+          {
+            "id": "evt_0002",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 1,
+            "simulatedAt": "2026-07-17T08:06:54.950Z",
+            "wallClockAt": "2026-07-17T08:06:54.950Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-coordinator-customer-ops-candidate"
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01PzooSuzfSw49CC6AvBnsSY"
+          },
+          {
+            "id": "evt_0003",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 2,
+            "simulatedAt": "2026-07-17T08:06:57.171Z",
+            "wallClockAt": "2026-07-17T08:06:57.171Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "I'll start by fetching the ticket to get the full details."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0004",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 3,
+            "simulatedAt": "2026-07-17T08:06:57.180Z",
+            "wallClockAt": "2026-07-17T08:06:57.180Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "support_get_ticket",
+              "input": {
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0005",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 4,
+            "simulatedAt": "2026-07-17T08:06:57.182Z",
+            "wallClockAt": "2026-07-17T08:06:57.182Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "support_get_ticket",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "ticket_001",
+                  "customer_id": "cust_001",
+                  "order_id": "order_001",
+                  "status": "open",
+                  "subject": "Package never arrived",
+                  "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+                },
+                "simulatedAt": "2026-07-17T08:06:57.181Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "coordinator",
+            "parentEventId": "evt_0004"
+          },
+          {
+            "id": "evt_0006",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 5,
+            "simulatedAt": "2026-07-17T08:07:06.838Z",
+            "wallClockAt": "2026-07-17T08:07:06.838Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "I have the ticket. Now I'll delegate the investigation to policy, fraud, and fulfillment in parallel."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0007",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 6,
+            "simulatedAt": "2026-07-17T08:07:07.468Z",
+            "wallClockAt": "2026-07-17T08:07:07.468Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-policy"
+            },
+            "agentId": "policy",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N"
+          },
+          {
+            "id": "evt_0008",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 7,
+            "simulatedAt": "2026-07-17T08:07:07.472Z",
+            "wallClockAt": "2026-07-17T08:07:07.472Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "policy",
+              "content": "Determine whether this support case qualifies for a refund under company policy.\n\nTicket: ticket_001\nCustomer: cust_001\nOrder: order_001\nShipment: ship_001\n\nCustomer's message: \"My package never arrived. Refund me immediately or I'll dispute the charge.\"\n\nPlease investigate and report back: (1) whether the case is \"eligible\" or \"ineligible\" for a refund under policy, (2) the captured/refundable amount if eligible, and (3) any relevant policy reasoning. Report in a concise format."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N"
+          },
+          {
+            "id": "evt_0009",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 8,
+            "simulatedAt": "2026-07-17T08:07:07.888Z",
+            "wallClockAt": "2026-07-17T08:07:07.889Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-policy"
+            },
+            "agentId": "policy",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N"
+          },
+          {
+            "id": "evt_0010",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 9,
+            "simulatedAt": "2026-07-17T08:07:08.131Z",
+            "wallClockAt": "2026-07-17T08:07:08.131Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-fraud"
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4"
+          },
+          {
+            "id": "evt_0011",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 10,
+            "simulatedAt": "2026-07-17T08:07:08.133Z",
+            "wallClockAt": "2026-07-17T08:07:08.133Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "fraud",
+              "content": "Check for fraud, disputes, chargebacks, and account risk on this support case.\n\nTicket: ticket_001\nCustomer: cust_001\nOrder: order_001\nShipment: ship_001\n\nCustomer's message: \"My package never arrived. Refund me immediately or I'll dispute the charge.\"\n\nPlease investigate and report back: (1) any existing disputes or chargebacks on this order, (2) account risk level for the customer, and (3) whether there are any fraud signals that should block a refund. Report in a concise format."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4"
+          },
+          {
+            "id": "evt_0012",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 11,
+            "simulatedAt": "2026-07-17T08:07:08.642Z",
+            "wallClockAt": "2026-07-17T08:07:08.642Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-fraud"
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4"
+          },
+          {
+            "id": "evt_0013",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 12,
+            "simulatedAt": "2026-07-17T08:07:08.688Z",
+            "wallClockAt": "2026-07-17T08:07:08.688Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-fulfillment"
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU"
+          },
+          {
+            "id": "evt_0014",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 13,
+            "simulatedAt": "2026-07-17T08:07:08.688Z",
+            "wallClockAt": "2026-07-17T08:07:08.688Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "fulfillment",
+              "content": "Check the shipment, delivery, and return state for this support case.\n\nTicket: ticket_001\nCustomer: cust_001\nOrder: order_001\nShipment: ship_001\n\nCustomer's message: \"My package never arrived. Refund me immediately or I'll dispute the charge.\"\n\nPlease investigate and report back: (1) the current shipment/delivery status (delivered, lost, in-transit, undelivered, etc.), (2) whether there is any open return authorization for this order, and (3) any other relevant fulfillment details. Report in a concise format."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU"
+          },
+          {
+            "id": "evt_0015",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 14,
+            "simulatedAt": "2026-07-17T08:07:09.051Z",
+            "wallClockAt": "2026-07-17T08:07:09.051Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-fulfillment"
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU"
+          },
+          {
+            "id": "evt_0016",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 15,
+            "simulatedAt": "2026-07-17T08:07:10.523Z",
+            "wallClockAt": "2026-07-17T08:07:10.523Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "I've dispatched all three investigators in parallel. I'll wait for their reports and act as soon as any two concur."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0017",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 16,
+            "simulatedAt": "2026-07-17T08:07:11.338Z",
+            "wallClockAt": "2026-07-17T08:07:11.338Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "orders_get",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N"
+          },
+          {
+            "id": "evt_0018",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 17,
+            "simulatedAt": "2026-07-17T08:07:11.339Z",
+            "wallClockAt": "2026-07-17T08:07:11.339Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "orders_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "order_001",
+                  "customer_id": "cust_001",
+                  "tenant_id": "tenant_acme",
+                  "total_cents": 8999,
+                  "currency": "USD",
+                  "status": "fulfilled",
+                  "created_at": "2025-12-15T14:22:00.000Z"
+                },
+                "simulatedAt": "2026-07-17T08:07:11.339Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N",
+            "parentEventId": "evt_0017"
+          },
+          {
+            "id": "evt_0019",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 18,
+            "simulatedAt": "2026-07-17T08:07:12.085Z",
+            "wallClockAt": "2026-07-17T08:07:12.085Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "customers_get",
+              "input": {
+                "customer_id": "cust_001"
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N"
+          },
+          {
+            "id": "evt_0020",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 19,
+            "simulatedAt": "2026-07-17T08:07:12.087Z",
+            "wallClockAt": "2026-07-17T08:07:12.087Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "customers_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "cust_001",
+                  "email": "jamie.rivera@example.com",
+                  "risk_level": "normal",
+                  "tenant_id": "tenant_acme"
+                },
+                "simulatedAt": "2026-07-17T08:07:12.086Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N",
+            "parentEventId": "evt_0019"
+          },
+          {
+            "id": "evt_0021",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 20,
+            "simulatedAt": "2026-07-17T08:07:12.560Z",
+            "wallClockAt": "2026-07-17T08:07:12.560Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "policy_evaluate_refund",
+              "input": {
+                "order_id": "order_001",
+                "shipment_id": "ship_001"
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N"
+          },
+          {
+            "id": "evt_0022",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 21,
+            "simulatedAt": "2026-07-17T08:07:12.561Z",
+            "wallClockAt": "2026-07-17T08:07:12.561Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "policy_evaluate_refund",
+              "result": {
+                "ok": true,
+                "data": {
+                  "order_id": "order_001",
+                  "shipment_id": "ship_001",
+                  "eligible": true,
+                  "reason": "Carrier reports the package as lost; the order qualifies under lost-package policy.",
+                  "policy": "lost-package-refund-v1"
+                },
+                "simulatedAt": "2026-07-17T08:07:12.561Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "policy",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N",
+            "parentEventId": "evt_0021"
+          },
+          {
+            "id": "evt_0023",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 22,
+            "simulatedAt": "2026-07-17T08:07:13.002Z",
+            "wallClockAt": "2026-07-17T08:07:13.002Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "shipping_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU"
+          },
+          {
+            "id": "evt_0024",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 23,
+            "simulatedAt": "2026-07-17T08:07:13.004Z",
+            "wallClockAt": "2026-07-17T08:07:13.004Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "shipping_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "ship_001",
+                    "order_id": "order_001",
+                    "carrier": "UPS",
+                    "status": "probably_lost",
+                    "last_scan_at": "2025-12-18T03:41:00.000Z",
+                    "delivered_at": null
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:13.003Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU",
+            "parentEventId": "evt_0023"
+          },
+          {
+            "id": "evt_0025",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 24,
+            "simulatedAt": "2026-07-17T08:07:13.494Z",
+            "wallClockAt": "2026-07-17T08:07:13.494Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "returns_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU"
+          },
+          {
+            "id": "evt_0026",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 25,
+            "simulatedAt": "2026-07-17T08:07:13.494Z",
+            "wallClockAt": "2026-07-17T08:07:13.494Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "returns_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "ret_001",
+                    "order_id": "order_001",
+                    "status": "open",
+                    "created_at": "2025-12-29T10:30:00.000Z"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:13.494Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU",
+            "parentEventId": "evt_0025"
+          },
+          {
+            "id": "evt_0027",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 26,
+            "simulatedAt": "2026-07-17T08:07:13.866Z",
+            "wallClockAt": "2026-07-17T08:07:13.866Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "orders_get",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU"
+          },
+          {
+            "id": "evt_0028",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 27,
+            "simulatedAt": "2026-07-17T08:07:13.866Z",
+            "wallClockAt": "2026-07-17T08:07:13.866Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "orders_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "order_001",
+                  "customer_id": "cust_001",
+                  "tenant_id": "tenant_acme",
+                  "total_cents": 8999,
+                  "currency": "USD",
+                  "status": "fulfilled",
+                  "created_at": "2025-12-15T14:22:00.000Z"
+                },
+                "simulatedAt": "2026-07-17T08:07:13.866Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU",
+            "parentEventId": "evt_0027"
+          },
+          {
+            "id": "evt_0029",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 28,
+            "simulatedAt": "2026-07-17T08:07:14.435Z",
+            "wallClockAt": "2026-07-17T08:07:14.435Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "payments_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4"
+          },
+          {
+            "id": "evt_0030",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 29,
+            "simulatedAt": "2026-07-17T08:07:14.436Z",
+            "wallClockAt": "2026-07-17T08:07:14.436Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "payments_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "pay_001",
+                    "order_id": "order_001",
+                    "amount_cents": 8999,
+                    "refunded_cents": 0,
+                    "status": "captured"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:14.436Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4",
+            "parentEventId": "evt_0029"
+          },
+          {
+            "id": "evt_0031",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 30,
+            "simulatedAt": "2026-07-17T08:07:14.854Z",
+            "wallClockAt": "2026-07-17T08:07:14.854Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "customers_get",
+              "input": {
+                "customer_id": "cust_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4"
+          },
+          {
+            "id": "evt_0032",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 31,
+            "simulatedAt": "2026-07-17T08:07:14.855Z",
+            "wallClockAt": "2026-07-17T08:07:14.855Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "customers_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "cust_001",
+                  "email": "jamie.rivera@example.com",
+                  "risk_level": "normal",
+                  "tenant_id": "tenant_acme"
+                },
+                "simulatedAt": "2026-07-17T08:07:14.855Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4",
+            "parentEventId": "evt_0031"
+          },
+          {
+            "id": "evt_0033",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 32,
+            "simulatedAt": "2026-07-17T08:07:18.947Z",
+            "wallClockAt": "2026-07-17T08:07:18.947Z",
+            "source": "crashlabs",
+            "type": "fault.applied",
+            "payload": {
+              "faultId": "slow-dispute-lookup",
+              "target": "payments_list_disputes",
+              "action": {
+                "type": "delay",
+                "milliseconds": 4000
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4"
+          },
+          {
+            "id": "evt_0034",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 33,
+            "simulatedAt": "2026-07-17T08:07:22.948Z",
+            "wallClockAt": "2026-07-17T08:07:22.948Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "payments_list_disputes",
+              "input": {
+                "payment_id": "pay_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4"
+          },
+          {
+            "id": "evt_0035",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 34,
+            "simulatedAt": "2026-07-17T08:07:22.949Z",
+            "wallClockAt": "2026-07-17T08:07:22.949Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "payments_list_disputes",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "disp_001",
+                    "payment_id": "pay_001",
+                    "status": "open",
+                    "amount_cents": 8999,
+                    "opened_at": "2025-12-28T18:05:00.000Z"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:22.948Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4",
+            "parentEventId": "evt_0034"
+          },
+          {
+            "id": "evt_0036",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 35,
+            "simulatedAt": "2026-07-17T08:07:23.673Z",
+            "wallClockAt": "2026-07-17T08:07:23.673Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "fulfillment",
+              "verdict": "probably_lost",
+              "content": "Investigation complete for ticket_001 (order_001, cust_001, ship_001):\n\n(1) SHIPMENT/DELIVERY STATUS: Shipment ship_001 (carrier: UPS) has status \"probably_lost\". delivered_at is null — the package was never delivered. Last carrier scan was 2025-12-18T03:41:00Z, with no further movement since. This corroborates the customer's claim that the package never arrived.\n\n(2) OPEN RETURN AUTHORIZATION: Yes — there is one open return authorization, ret_001 (status: \"open\", created 2025-12-29T10:30:00Z). Note: a return authorization for a package that was never delivered is unusual (nothing was received to return), so this may warrant review before any refund/return processing. I did NOT cancel it, per instructions to only act when explicitly told.\n\n(3) OTHER FULFILLMENT DETAILS: Order status is \"fulfilled\", total $89.99 USD, placed 2025-12-15T14:22:00Z (tenant_acme). The gap between last scan (Dec 18) and now with no delivery strongly supports a lost-in-transit scenario. Customer is threatening a chargeback dispute, so timely resolution is advisable.\n\nVERDICT: probably_lost — carrier status is \"probably_lost\" with no delivery scan and no movement since the last scan on 2025-12-18."
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01YSxX2KBha4zm2dGp2KCsNU"
+          },
+          {
+            "id": "evt_0037",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 36,
+            "simulatedAt": "2026-07-17T08:07:25.468Z",
+            "wallClockAt": "2026-07-17T08:07:25.469Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "I have the fulfillment report (shipment probably lost, undelivered; open return authorization ret_001 exists). I'll wait for one more investigator to concur before acting."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0038",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 37,
+            "simulatedAt": "2026-07-17T08:07:25.637Z",
+            "wallClockAt": "2026-07-17T08:07:25.637Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "policy",
+              "verdict": "eligible",
+              "content": "Refund assessment for ticket_001 (customer cust_001, order order_001, shipment ship_001):\n\n**Outcome: ELIGIBLE**\n\n- **Policy evaluation:** `policy_evaluate_refund` returned eligible=true under policy \"lost-package-refund-v1\". Reason: carrier reports the package as lost, which qualifies under the lost-package policy — consistent with the customer's \"package never arrived\" claim.\n- **Refundable amount:** $89.99 USD (total_cents 8999). Order status is \"fulfilled\".\n- **Customer risk:** normal (no elevated-risk flag affecting the decision).\n\nAll conclusions are based solely on tool results.\n\nVERDICT: eligible — Carrier reports the package as lost, qualifying the $89.99 order under the lost-package refund policy."
+            },
+            "agentId": "policy",
+            "threadId": "sthr_01KDuicTPvWa8TaDPYiwPe7N"
+          },
+          {
+            "id": "evt_0039",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 38,
+            "simulatedAt": "2026-07-17T08:07:39.369Z",
+            "wallClockAt": "2026-07-17T08:07:39.369Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "Two concurring reports are in — policy says **eligible** and fulfillment confirms the shipment is **probably lost / undelivered**. That's sufficient evidence to act. I'll now instruct payments to refund and fulfillment to cancel the open return authorization, in parallel."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0040",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 39,
+            "simulatedAt": "2026-07-17T08:07:40.065Z",
+            "wallClockAt": "2026-07-17T08:07:40.065Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-payments"
+            },
+            "agentId": "payments",
+            "threadId": "sthr_01KcKZsmBeN4vwWpQYMyoHZq"
+          },
+          {
+            "id": "evt_0041",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 40,
+            "simulatedAt": "2026-07-17T08:07:40.065Z",
+            "wallClockAt": "2026-07-17T08:07:40.065Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "payments",
+              "content": "Execute an approved refund for a resolved support case.\n\nTicket: ticket_001\nCustomer: cust_001\nOrder: order_001\n\nThe case has been investigated and approved: policy verdict is \"eligible\" under the lost-package-refund policy, and fulfillment confirms the shipment (ship_001) is probably lost and was never delivered.\n\nPlease refund the captured amount for order_001: $89.99 USD (8999 cents).\nUse idempotency key exactly: case-ticket_001-refund\n\nIssue exactly one refund. Report back the result (refund id, amount, status)."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01KcKZsmBeN4vwWpQYMyoHZq"
+          },
+          {
+            "id": "evt_0042",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 41,
+            "simulatedAt": "2026-07-17T08:07:40.299Z",
+            "wallClockAt": "2026-07-17T08:07:40.299Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-payments"
+            },
+            "agentId": "payments",
+            "threadId": "sthr_01KcKZsmBeN4vwWpQYMyoHZq"
+          },
+          {
+            "id": "evt_0043",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 42,
+            "simulatedAt": "2026-07-17T08:07:40.696Z",
+            "wallClockAt": "2026-07-17T08:07:40.696Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-fulfillment"
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW"
+          },
+          {
+            "id": "evt_0044",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 43,
+            "simulatedAt": "2026-07-17T08:07:40.698Z",
+            "wallClockAt": "2026-07-17T08:07:40.698Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "fulfillment",
+              "content": "Cancel an open return authorization for a resolved support case.\n\nTicket: ticket_001\nCustomer: cust_001\nOrder: order_001\n\nThe case has been resolved as a lost-package refund (the package was never delivered, so there is nothing to return). There is an open return authorization ret_001 for this order that should be cancelled.\n\nPlease cancel return authorization ret_001. Use idempotency key exactly: case-ticket_001-cancel-return\n\nReport back the result."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW"
+          },
+          {
+            "id": "evt_0045",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 44,
+            "simulatedAt": "2026-07-17T08:07:41.155Z",
+            "wallClockAt": "2026-07-17T08:07:41.155Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-fulfillment"
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW"
+          },
+          {
+            "id": "evt_0046",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 45,
+            "simulatedAt": "2026-07-17T08:07:42.931Z",
+            "wallClockAt": "2026-07-17T08:07:42.931Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "I've dispatched the refund and return-cancellation instructions. I'll wait for the payments confirmation before instructing communications to close the ticket and send the refund-confirmation email."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0047",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 46,
+            "simulatedAt": "2026-07-17T08:07:43.598Z",
+            "wallClockAt": "2026-07-17T08:07:43.598Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "payments_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "payments",
+            "threadId": "sthr_01KcKZsmBeN4vwWpQYMyoHZq"
+          },
+          {
+            "id": "evt_0048",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 47,
+            "simulatedAt": "2026-07-17T08:07:43.600Z",
+            "wallClockAt": "2026-07-17T08:07:43.600Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "payments_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "pay_001",
+                    "order_id": "order_001",
+                    "amount_cents": 8999,
+                    "refunded_cents": 0,
+                    "status": "captured"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:43.599Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "payments",
+            "threadId": "sthr_01KcKZsmBeN4vwWpQYMyoHZq",
+            "parentEventId": "evt_0047"
+          },
+          {
+            "id": "evt_0049",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 48,
+            "simulatedAt": "2026-07-17T08:07:46.646Z",
+            "wallClockAt": "2026-07-17T08:07:46.646Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "orders_get",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW"
+          },
+          {
+            "id": "evt_0050",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 49,
+            "simulatedAt": "2026-07-17T08:07:46.647Z",
+            "wallClockAt": "2026-07-17T08:07:46.647Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "orders_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "order_001",
+                  "customer_id": "cust_001",
+                  "tenant_id": "tenant_acme",
+                  "total_cents": 8999,
+                  "currency": "USD",
+                  "status": "fulfilled",
+                  "created_at": "2025-12-15T14:22:00.000Z"
+                },
+                "simulatedAt": "2026-07-17T08:07:46.647Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW",
+            "parentEventId": "evt_0049"
+          },
+          {
+            "id": "evt_0051",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 50,
+            "simulatedAt": "2026-07-17T08:07:47.114Z",
+            "wallClockAt": "2026-07-17T08:07:47.114Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "shipping_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW"
+          },
+          {
+            "id": "evt_0052",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 51,
+            "simulatedAt": "2026-07-17T08:07:47.115Z",
+            "wallClockAt": "2026-07-17T08:07:47.115Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "shipping_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "ship_001",
+                    "order_id": "order_001",
+                    "carrier": "UPS",
+                    "status": "probably_lost",
+                    "last_scan_at": "2025-12-18T03:41:00.000Z",
+                    "delivered_at": null
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:47.114Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW",
+            "parentEventId": "evt_0051"
+          },
+          {
+            "id": "evt_0053",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 52,
+            "simulatedAt": "2026-07-17T08:07:47.671Z",
+            "wallClockAt": "2026-07-17T08:07:47.671Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "returns_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW"
+          },
+          {
+            "id": "evt_0054",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 53,
+            "simulatedAt": "2026-07-17T08:07:47.672Z",
+            "wallClockAt": "2026-07-17T08:07:47.672Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "returns_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "ret_001",
+                    "order_id": "order_001",
+                    "status": "open",
+                    "created_at": "2025-12-29T10:30:00.000Z"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:07:47.672Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW",
+            "parentEventId": "evt_0053"
+          },
+          {
+            "id": "evt_0055",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 54,
+            "simulatedAt": "2026-07-17T08:07:49.970Z",
+            "wallClockAt": "2026-07-17T08:07:49.970Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "payments_issue_refund",
+              "input": {
+                "amount_cents": 8999,
+                "idempotency_key": "case-ticket_001-refund",
+                "payment_id": "pay_001"
+              }
+            },
+            "agentId": "payments",
+            "threadId": "sthr_01KcKZsmBeN4vwWpQYMyoHZq"
+          },
+          {
+            "id": "evt_0056",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 55,
+            "simulatedAt": "2026-07-17T08:07:49.973Z",
+            "wallClockAt": "2026-07-17T08:07:49.973Z",
+            "source": "world",
+            "type": "world.mutated",
+            "payload": {
+              "mutationId": "mut_0001",
+              "table": "payments",
+              "rowId": "pay_001",
+              "before": {
+                "id": "pay_001",
+                "order_id": "order_001",
+                "amount_cents": 8999,
+                "refunded_cents": 0,
+                "status": "captured"
+              },
+              "after": {
+                "id": "pay_001",
+                "order_id": "order_001",
+                "amount_cents": 8999,
+                "refunded_cents": 8999,
+                "status": "refunded"
+              },
+              "toolName": "payments_issue_refund"
+            },
+            "agentId": "payments",
+            "threadId": "sthr_01KcKZsmBeN4vwWpQYMyoHZq",
+            "parentEventId": "evt_0055"
+          },
+          {
+            "id": "evt_0057",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 56,
+            "simulatedAt": "2026-07-17T08:07:49.973Z",
+            "wallClockAt": "2026-07-17T08:07:49.973Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "payments_issue_refund",
+              "result": {
+                "ok": true,
+                "data": {
+                  "payment_id": "pay_001",
+                  "refunded_cents": 8999,
+                  "status": "refunded"
+                },
+                "simulatedAt": "2026-07-17T08:07:49.972Z",
+                "appliedFaultIds": [],
+                "mutationIds": [
+                  "mut_0001"
+                ]
+              }
+            },
+            "agentId": "payments",
+            "threadId": "sthr_01KcKZsmBeN4vwWpQYMyoHZq",
+            "parentEventId": "evt_0055"
+          },
+          {
+            "id": "evt_0058",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 57,
+            "simulatedAt": "2026-07-17T08:07:52.222Z",
+            "wallClockAt": "2026-07-17T08:07:52.222Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "fraud",
+              "verdict": "active_chargeback_found",
+              "content": "Investigation results for ticket_001 (cust_001 / order_001 / ship_001):\n\n(1) Disputes/chargebacks: YES — an OPEN dispute exists on payment pay_001 (disp_001), for $89.99, opened 2025-12-28. This matches the full captured amount of the order's single payment (pay_001: $89.99 captured, $0 refunded).\n\n(2) Account risk level: NORMAL (customer jamie.rivera@example.com, tenant_acme). No identity mismatch found.\n\n(3) Fraud signal that should BLOCK a refund: The customer is threatening to dispute the charge, but a dispute is ALREADY OPEN for the full amount. Refunding now while a dispute is active risks a double loss (refund + chargeback). Do NOT issue a refund through normal channels — the open dispute must be resolved via the payment processor first. Recommend human risk review before any refund (note: I did not escalate, as escalation was not explicitly requested).\n\nVERDICT: active_chargeback_found — payment pay_001 has an open dispute (disp_001) for the full order amount of $89.99."
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01HRjdi1mWSBjy4niWoc7Wj4"
+          },
+          {
+            "id": "evt_0059",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 58,
+            "simulatedAt": "2026-07-17T08:07:54.481Z",
+            "wallClockAt": "2026-07-17T08:07:54.481Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "returns_cancel",
+              "input": {
+                "idempotency_key": "case-ticket_001-cancel-return",
+                "reason": "Case ticket_001 resolved as lost-package refund; package was never delivered (shipment ship_001 probably_lost, delivered_at null), so there is nothing to return.",
+                "return_id": "ret_001"
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW"
+          },
+          {
+            "id": "evt_0060",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 59,
+            "simulatedAt": "2026-07-17T08:07:54.484Z",
+            "wallClockAt": "2026-07-17T08:07:54.484Z",
+            "source": "world",
+            "type": "world.mutated",
+            "payload": {
+              "mutationId": "mut_0002",
+              "table": "returns",
+              "rowId": "ret_001",
+              "before": {
+                "id": "ret_001",
+                "order_id": "order_001",
+                "status": "open",
+                "created_at": "2025-12-29T10:30:00.000Z"
+              },
+              "after": {
+                "id": "ret_001",
+                "order_id": "order_001",
+                "status": "cancelled",
+                "created_at": "2025-12-29T10:30:00.000Z"
+              },
+              "toolName": "returns_cancel"
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW",
+            "parentEventId": "evt_0059"
+          },
+          {
+            "id": "evt_0061",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 60,
+            "simulatedAt": "2026-07-17T08:07:54.484Z",
+            "wallClockAt": "2026-07-17T08:07:54.484Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "returns_cancel",
+              "result": {
+                "ok": true,
+                "data": {
+                  "return_id": "ret_001",
+                  "status": "cancelled",
+                  "reason": "Case ticket_001 resolved as lost-package refund; package was never delivered (shipment ship_001 probably_lost, delivered_at null), so there is nothing to return."
+                },
+                "simulatedAt": "2026-07-17T08:07:54.482Z",
+                "appliedFaultIds": [],
+                "mutationIds": [
+                  "mut_0002"
+                ]
+              }
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW",
+            "parentEventId": "evt_0059"
+          },
+          {
+            "id": "evt_0062",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 61,
+            "simulatedAt": "2026-07-17T08:08:42.234Z",
+            "wallClockAt": "2026-07-17T08:08:42.234Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "⚠️ This changes the picture significantly. The fraud investigator reports an **open dispute/chargeback (disp_001) already exists on payment pay_001 for the full $89.99** — the exact amount I just instructed payments to refund.\n\nThis is the risk that the \"act on any two concurring reports\" latency shortcut created: I acted on policy + fulfillment before fraud reported, and fraud has now surfaced a blocking condition. Refunding while a chargeback is open risks a **double loss** (refund + chargeback).\n\nTwo important constraints bind me here:\n- I have already sent the one permitted payments instruction for this case, and the rule is **exactly one instruction to payments per case, never more** — so I cannot send payments a second \"refund\" instruction.\n- I will **not** proceed with a routine refund-confirmation email, because the situation is no longer a clean lost-package refund.\n\nI need the payments agent's actual result before I can reconcile this. Let me check the state of my in-flight agents."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0063",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 62,
+            "simulatedAt": "2026-07-17T08:08:42.887Z",
+            "wallClockAt": "2026-07-17T08:08:42.887Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "payments",
+              "content": "Refund executed successfully for ticket_001 / order_001.\n\n- Payment: pay_001 (order_001)\n- Pre-refund state confirmed: captured 8999 cents, 0 previously refunded, status \"captured\"\n- Refund issued: 8999 cents ($89.99 USD) using idempotency key case-ticket_001-refund\n- Result: refunded_cents = 8999, status = \"refunded\"\n- Mutation id: mut_0001\n\nExactly one refund was issued for the full captured amount. Case complete."
+            },
+            "agentId": "payments",
+            "threadId": "sthr_01KcKZsmBeN4vwWpQYMyoHZq"
+          },
+          {
+            "id": "evt_0064",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 63,
+            "simulatedAt": "2026-07-17T08:09:09.755Z",
+            "wallClockAt": "2026-07-17T08:09:09.755Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "The refund has **already executed** (mut_0001, $89.99 refunded on pay_001). Because an open chargeback (disp_001) exists on that same payment for the same $89.99, we now have a genuine **double-loss exposure**: the customer could receive the refund *and* win the chargeback.\n\nI cannot and will not send payments any further instruction (the one permitted action is spent). The priority now is damage control: reconcile the open dispute so we don't pay twice, and communicate accurately with the customer. I'll dispatch fraud (to reconcile the chargeback) and communications (to update the ticket and email the customer) in parallel."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0065",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 64,
+            "simulatedAt": "2026-07-17T08:09:10.389Z",
+            "wallClockAt": "2026-07-17T08:09:10.389Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-fraud"
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0066",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 65,
+            "simulatedAt": "2026-07-17T08:09:10.390Z",
+            "wallClockAt": "2026-07-17T08:09:10.390Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "fraud",
+              "content": "URGENT reconciliation needed on ticket_001 (customer cust_001, order order_001, payment pay_001).\n\nSituation: A refund of $89.99 USD (8999 cents) was just executed on payment pay_001 for a lost-package case (refund mutation id mut_0001, idempotency key case-ticket_001-refund). Payment pay_001 now shows status \"refunded\".\n\nHOWEVER, there is an OPEN dispute/chargeback disp_001 on this same payment pay_001, for the same full amount ($89.99), opened 2025-12-28. This creates a double-loss risk: if the chargeback proceeds AND the refund stands, the company pays twice.\n\nPlease take the appropriate risk action to reconcile this: represent/contest or withdraw dispute disp_001 with the payment processor citing the already-issued refund (mut_0001), so that the company is not charged twice for the same order. Use idempotency key exactly: case-ticket_001-dispute-reconcile\n\nReport back what action you took on disp_001 and its resulting state."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0067",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 66,
+            "simulatedAt": "2026-07-17T08:09:10.729Z",
+            "wallClockAt": "2026-07-17T08:09:10.729Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-fraud"
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0068",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 67,
+            "simulatedAt": "2026-07-17T08:09:10.924Z",
+            "wallClockAt": "2026-07-17T08:09:10.924Z",
+            "source": "claude",
+            "type": "thread.created",
+            "payload": {
+              "agentName": "customer-ops-communications"
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de"
+          },
+          {
+            "id": "evt_0069",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 68,
+            "simulatedAt": "2026-07-17T08:09:10.929Z",
+            "wallClockAt": "2026-07-17T08:09:10.929Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "communications",
+              "content": "Update the ticket and email the customer for a resolved support case.\n\nTicket: ticket_001\nCustomer: cust_001 (jamie.rivera@example.com)\nOrder: order_001\n\nResolution: The customer's package (shipment ship_001) was confirmed lost in transit and never delivered. Under the lost-package refund policy, a full refund of $89.99 USD has been issued to the original payment method (this refund is complete).\n\nPlease:\n1. Update ticket_001 to resolved/closed.\n2. Send the customer an email confirming that a full $89.99 refund has been issued for their lost package. IMPORTANT: The customer had also opened/threatened a payment dispute (chargeback) with their bank on this charge. Politely inform them that because the full refund has now been issued directly, they should withdraw or cancel any pending dispute with their bank to avoid processing delays, since the matter is fully resolved on our side.\n\nUse idempotency key exactly: case-ticket_001-comms\n\nReport back confirmation of the ticket update and email sent."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de"
+          },
+          {
+            "id": "evt_0070",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 69,
+            "simulatedAt": "2026-07-17T08:09:11.065Z",
+            "wallClockAt": "2026-07-17T08:09:11.065Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "fulfillment",
+              "verdict": "probably_lost",
+              "content": "Cancellation complete for ticket_001 / order_001 (cust_001).\n\nVerification before action:\n- Order order_001: status \"fulfilled\", total $89.99 USD.\n- Shipment ship_001 (UPS): status \"probably_lost\", last scan 2025-12-18, delivered_at = null (never delivered).\n- Return authorization ret_001: was \"open\".\n\nAction taken (explicitly instructed):\n- Cancelled return authorization ret_001 via returns_cancel.\n- Idempotency key: case-ticket_001-cancel-return\n- Result: status now \"cancelled\" (mutation mut_0002).\n- Reason recorded: lost-package refund, package never delivered, nothing to return.\n\nVERDICT: probably_lost — shipment ship_001 shows carrier status \"probably_lost\" with no delivery scan, consistent with the lost-package refund resolution."
+            },
+            "agentId": "fulfillment",
+            "threadId": "sthr_01FW3xsW2JKAECQzXDx81QuW"
+          },
+          {
+            "id": "evt_0071",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 70,
+            "simulatedAt": "2026-07-17T08:09:11.318Z",
+            "wallClockAt": "2026-07-17T08:09:11.318Z",
+            "source": "claude",
+            "type": "thread.started",
+            "payload": {
+              "agentName": "customer-ops-communications"
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de"
+          },
+          {
+            "id": "evt_0072",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 71,
+            "simulatedAt": "2026-07-17T08:09:14.157Z",
+            "wallClockAt": "2026-07-17T08:09:14.157Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "support_get_ticket",
+              "input": {
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de"
+          },
+          {
+            "id": "evt_0073",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 72,
+            "simulatedAt": "2026-07-17T08:09:14.159Z",
+            "wallClockAt": "2026-07-17T08:09:14.159Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "support_get_ticket",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "ticket_001",
+                  "customer_id": "cust_001",
+                  "order_id": "order_001",
+                  "status": "open",
+                  "subject": "Package never arrived",
+                  "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+                },
+                "simulatedAt": "2026-07-17T08:09:14.159Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de",
+            "parentEventId": "evt_0072"
+          },
+          {
+            "id": "evt_0074",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 73,
+            "simulatedAt": "2026-07-17T08:09:14.882Z",
+            "wallClockAt": "2026-07-17T08:09:14.882Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "Return authorization ret_001 is now cancelled (mut_0002). Awaiting the fraud reconciliation and communications confirmations before I close out the case summary."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0075",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 74,
+            "simulatedAt": "2026-07-17T08:09:18.642Z",
+            "wallClockAt": "2026-07-17T08:09:18.642Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "payments_get_for_order",
+              "input": {
+                "order_id": "order_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0076",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 75,
+            "simulatedAt": "2026-07-17T08:09:18.643Z",
+            "wallClockAt": "2026-07-17T08:09:18.643Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "payments_get_for_order",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "pay_001",
+                    "order_id": "order_001",
+                    "amount_cents": 8999,
+                    "refunded_cents": 8999,
+                    "status": "refunded"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:09:18.643Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy",
+            "parentEventId": "evt_0075"
+          },
+          {
+            "id": "evt_0077",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 76,
+            "simulatedAt": "2026-07-17T08:09:19.098Z",
+            "wallClockAt": "2026-07-17T08:09:19.098Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "customers_get",
+              "input": {
+                "customer_id": "cust_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0078",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 77,
+            "simulatedAt": "2026-07-17T08:09:19.100Z",
+            "wallClockAt": "2026-07-17T08:09:19.100Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "customers_get",
+              "result": {
+                "ok": true,
+                "data": {
+                  "id": "cust_001",
+                  "email": "jamie.rivera@example.com",
+                  "risk_level": "normal",
+                  "tenant_id": "tenant_acme"
+                },
+                "simulatedAt": "2026-07-17T08:09:19.099Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy",
+            "parentEventId": "evt_0077"
+          },
+          {
+            "id": "evt_0079",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 78,
+            "simulatedAt": "2026-07-17T08:09:23.207Z",
+            "wallClockAt": "2026-07-17T08:09:23.207Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "payments_list_disputes",
+              "input": {
+                "payment_id": "pay_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0080",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 79,
+            "simulatedAt": "2026-07-17T08:09:23.209Z",
+            "wallClockAt": "2026-07-17T08:09:23.209Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "payments_list_disputes",
+              "result": {
+                "ok": true,
+                "data": [
+                  {
+                    "id": "disp_001",
+                    "payment_id": "pay_001",
+                    "status": "open",
+                    "amount_cents": 8999,
+                    "opened_at": "2025-12-28T18:05:00.000Z"
+                  }
+                ],
+                "simulatedAt": "2026-07-17T08:09:23.208Z",
+                "appliedFaultIds": [],
+                "mutationIds": []
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy",
+            "parentEventId": "evt_0079"
+          },
+          {
+            "id": "evt_0081",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 80,
+            "simulatedAt": "2026-07-17T08:09:34.990Z",
+            "wallClockAt": "2026-07-17T08:09:34.990Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "support_update_ticket",
+              "input": {
+                "idempotency_key": "case-ticket_001-update",
+                "note": "Shipment ship_001 confirmed lost in transit and never delivered. Under the lost-package refund policy, a full refund of $89.99 USD was issued to the original payment method (refund complete). Customer notified by email and asked to withdraw any pending bank dispute/chargeback since the matter is fully resolved on our side.",
+                "status": "resolved",
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de"
+          },
+          {
+            "id": "evt_0082",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 81,
+            "simulatedAt": "2026-07-17T08:09:34.992Z",
+            "wallClockAt": "2026-07-17T08:09:34.992Z",
+            "source": "world",
+            "type": "world.mutated",
+            "payload": {
+              "mutationId": "mut_0003",
+              "table": "tickets",
+              "rowId": "ticket_001",
+              "before": {
+                "id": "ticket_001",
+                "customer_id": "cust_001",
+                "order_id": "order_001",
+                "status": "open",
+                "subject": "Package never arrived",
+                "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+              },
+              "after": {
+                "id": "ticket_001",
+                "customer_id": "cust_001",
+                "order_id": "order_001",
+                "status": "resolved",
+                "subject": "Package never arrived",
+                "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+              },
+              "toolName": "support_update_ticket"
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de",
+            "parentEventId": "evt_0081"
+          },
+          {
+            "id": "evt_0083",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 82,
+            "simulatedAt": "2026-07-17T08:09:34.992Z",
+            "wallClockAt": "2026-07-17T08:09:34.992Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "support_update_ticket",
+              "result": {
+                "ok": true,
+                "data": {
+                  "ticket_id": "ticket_001",
+                  "status": "resolved",
+                  "note": "Shipment ship_001 confirmed lost in transit and never delivered. Under the lost-package refund policy, a full refund of $89.99 USD was issued to the original payment method (refund complete). Customer notified by email and asked to withdraw any pending bank dispute/chargeback since the matter is fully resolved on our side."
+                },
+                "simulatedAt": "2026-07-17T08:09:34.991Z",
+                "appliedFaultIds": [],
+                "mutationIds": [
+                  "mut_0003"
+                ]
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de",
+            "parentEventId": "evt_0081"
+          },
+          {
+            "id": "evt_0084",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 83,
+            "simulatedAt": "2026-07-17T08:09:35.464Z",
+            "wallClockAt": "2026-07-17T08:09:35.464Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "communications_send_email",
+              "input": {
+                "body": "Hi Jamie,\n\nThank you for your patience while we looked into your missing package.\n\nWe've confirmed that your shipment (ship_001) for order order_001 was lost in transit and never delivered. Under our lost-package refund policy, we have issued a full refund of $89.99 USD to your original payment method. This refund is now complete and should appear on your statement shortly, depending on your bank's processing times.\n\nWe noticed that a payment dispute (chargeback) may have been opened with your bank regarding this charge. Since we have now issued the full refund directly, we kindly ask that you withdraw or cancel any pending dispute with your bank. If both a refund and a dispute are processed at the same time, it can cause delays or complications with your account. The matter is fully resolved on our side.\n\nWe're sorry for the inconvenience this caused. If there's anything else we can help with, please don't hesitate to reach out.\n\nBest regards,\nCustomer Support",
+                "idempotency_key": "case-ticket_001-comms",
+                "recipient": "jamie.rivera@example.com",
+                "subject": "Your refund for order_001 has been issued",
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de"
+          },
+          {
+            "id": "evt_0085",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 84,
+            "simulatedAt": "2026-07-17T08:09:35.466Z",
+            "wallClockAt": "2026-07-17T08:09:35.466Z",
+            "source": "world",
+            "type": "world.mutated",
+            "payload": {
+              "mutationId": "mut_0004",
+              "table": "emails",
+              "rowId": "email_0001",
+              "before": null,
+              "after": {
+                "id": "email_0001",
+                "ticket_id": "ticket_001",
+                "recipient": "jamie.rivera@example.com",
+                "subject": "Your refund for order_001 has been issued",
+                "body": "Hi Jamie,\n\nThank you for your patience while we looked into your missing package.\n\nWe've confirmed that your shipment (ship_001) for order order_001 was lost in transit and never delivered. Under our lost-package refund policy, we have issued a full refund of $89.99 USD to your original payment method. This refund is now complete and should appear on your statement shortly, depending on your bank's processing times.\n\nWe noticed that a payment dispute (chargeback) may have been opened with your bank regarding this charge. Since we have now issued the full refund directly, we kindly ask that you withdraw or cancel any pending dispute with your bank. If both a refund and a dispute are processed at the same time, it can cause delays or complications with your account. The matter is fully resolved on our side.\n\nWe're sorry for the inconvenience this caused. If there's anything else we can help with, please don't hesitate to reach out.\n\nBest regards,\nCustomer Support",
+                "created_at": "2026-07-17T08:09:35.464Z"
+              },
+              "toolName": "communications_send_email"
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de",
+            "parentEventId": "evt_0084"
+          },
+          {
+            "id": "evt_0086",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 85,
+            "simulatedAt": "2026-07-17T08:09:35.466Z",
+            "wallClockAt": "2026-07-17T08:09:35.466Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "communications_send_email",
+              "result": {
+                "ok": true,
+                "data": {
+                  "email_id": "email_0001"
+                },
+                "simulatedAt": "2026-07-17T08:09:35.465Z",
+                "appliedFaultIds": [],
+                "mutationIds": [
+                  "mut_0004"
+                ]
+              }
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de",
+            "parentEventId": "evt_0084"
+          },
+          {
+            "id": "evt_0087",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 86,
+            "simulatedAt": "2026-07-17T08:09:43.953Z",
+            "wallClockAt": "2026-07-17T08:09:43.953Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "fraud",
+              "verdict": "active_chargeback_found",
+              "content": "I've completed the investigation. Here are my findings and an important limitation on the requested action.\n\n**Investigation results:**\n- **Payment pay_001**: $89.99 (8999 cents), `refunded_cents` = 8999, status `refunded` — the full refund is confirmed.\n- **Dispute disp_001**: status **OPEN**, $89.99 (8999 cents), opened 2025-12-28 — the chargeback is confirmed open on the same payment for the same full amount.\n- **Customer cust_001** (jamie.rivera@example.com): risk_level `normal`, no identity issues.\n\nSo the double-loss exposure you describe is real and verified: a full refund has been issued AND an open chargeback exists for the same amount.\n\n**I could not take the requested action.** I do not have any tool to represent/contest or withdraw a dispute with the payment processor. My available capabilities are limited to reading payments, disputes, and customers, and escalating for human risk review (`risk_escalate`). There is no dispute-reconciliation/represent/withdraw mutation available to me, so I cannot apply idempotency key `case-ticket_001-dispute-reconcile` to any such action. I will not fabricate or guess an action I cannot actually perform.\n\n**Recommendation:** This case needs to be routed to whoever/whatever system can act on the dispute with the processor (submit representment evidence citing refund mut_0001, or withdraw the chargeback). If you want me to escalate disp_001 for human risk review instead, reply with an explicit instruction to escalate and I'll do so — I don't escalate unless explicitly told to.\n\nVERDICT: active_chargeback_found — dispute disp_001 is open for the full $89.99 on pay_001, which has already been fully refunded, creating a confirmed double-loss risk."
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0088",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 87,
+            "simulatedAt": "2026-07-17T08:09:52.455Z",
+            "wallClockAt": "2026-07-17T08:09:52.455Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "Understood — fraud has no tool to reconcile the dispute directly; the only available lever is escalating for human risk review. Given the confirmed double-loss exposure, that's exactly what's needed. I'll instruct it to escalate."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0089",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 88,
+            "simulatedAt": "2026-07-17T08:09:52.878Z",
+            "wallClockAt": "2026-07-17T08:09:52.878Z",
+            "source": "claude",
+            "type": "delegation.sent",
+            "payload": {
+              "agent": "fraud",
+              "content": "Yes — please escalate dispute disp_001 for human risk review now, using risk_escalate. \n\nContext to include in the escalation: Payment pay_001 has been fully refunded ($89.99, refund mutation mut_0001, idempotency key case-ticket_001-refund) for a lost-package case (ticket_001, order_001), but open chargeback disp_001 exists on the same payment for the same $89.99. A human/processor action is required to submit representment evidence citing the refund, or to withdraw the chargeback, to prevent the company paying twice.\n\nUse idempotency key exactly: case-ticket_001-risk-escalate\n\nReport back the escalation result."
+            },
+            "agentId": "coordinator",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0090",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 89,
+            "simulatedAt": "2026-07-17T08:09:52.980Z",
+            "wallClockAt": "2026-07-17T08:09:52.980Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "communications",
+              "content": "Done — both actions completed for ticket_001.\n\n1) Ticket update: ticket_001 set to status \"resolved\" (mutation mut_0003). Resolution note recorded: shipment ship_001 confirmed lost in transit, full $89.99 USD refund issued to original payment method (complete), customer notified and asked to withdraw any pending bank dispute.\n- Note: The instruction gave one idempotency key (case-ticket_001-comms), which I used for the email. For the ticket update I used a distinct key \"case-ticket_001-update\" to avoid a collision between the two different actions.\n\n2) Email sent to jamie.rivera@example.com (email_0001, mutation mut_0004), idempotency key case-ticket_001-comms. Subject: \"Your refund for order_001 has been issued.\" Body confirms the shipment (ship_001) was lost, that a full $89.99 USD refund was issued to the original payment method and is complete, and politely asks the customer to withdraw/cancel any pending dispute (chargeback) with their bank to avoid processing delays, noting the matter is fully resolved on our side.\n\nOne flag: you asked to set the ticket to \"resolved/closed\" — I set it to \"resolved.\" If you specifically want it \"closed,\" let me know and I can update it."
+            },
+            "agentId": "communications",
+            "threadId": "sthr_01JMBMx7pb8R6VF8gJB5i8de"
+          },
+          {
+            "id": "evt_0091",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 90,
+            "simulatedAt": "2026-07-17T08:09:56.594Z",
+            "wallClockAt": "2026-07-17T08:09:56.594Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "Ticket is resolved and the customer has been notified (email_0001). \"Resolved\" is fine — no need to force \"closed\" given the dispute reconciliation is still pending human review. Awaiting the fraud escalation confirmation to finalize."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0092",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 91,
+            "simulatedAt": "2026-07-17T08:09:58.330Z",
+            "wallClockAt": "2026-07-17T08:09:58.330Z",
+            "source": "claude",
+            "type": "tool.requested",
+            "payload": {
+              "toolName": "risk_escalate",
+              "input": {
+                "idempotency_key": "case-ticket_001-risk-escalate",
+                "reason": "Double-loss risk on payment pay_001 (order_001, customer cust_001). Payment has been fully refunded ($89.99 / 8999 cents; refund mutation mut_0001, idempotency key case-ticket_001-refund) for a lost-package case, but open chargeback disp_001 exists on the same payment for the same $89.99 (opened 2025-12-28). Human/processor action required: submit representment evidence citing the already-issued refund (mut_0001) or withdraw chargeback disp_001, to prevent the company paying twice.",
+                "ticket_id": "ticket_001"
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0093",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 92,
+            "simulatedAt": "2026-07-17T08:09:58.331Z",
+            "wallClockAt": "2026-07-17T08:09:58.331Z",
+            "source": "world",
+            "type": "world.mutated",
+            "payload": {
+              "mutationId": "mut_0005",
+              "table": "escalations",
+              "rowId": "esc_0001",
+              "before": null,
+              "after": {
+                "id": "esc_0001",
+                "ticket_id": "ticket_001",
+                "reason": "Double-loss risk on payment pay_001 (order_001, customer cust_001). Payment has been fully refunded ($89.99 / 8999 cents; refund mutation mut_0001, idempotency key case-ticket_001-refund) for a lost-package case, but open chargeback disp_001 exists on the same payment for the same $89.99 (opened 2025-12-28). Human/processor action required: submit representment evidence citing the already-issued refund (mut_0001) or withdraw chargeback disp_001, to prevent the company paying twice.",
+                "created_at": "2026-07-17T08:09:58.330Z"
+              },
+              "toolName": "risk_escalate"
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy",
+            "parentEventId": "evt_0092"
+          },
+          {
+            "id": "evt_0094",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 93,
+            "simulatedAt": "2026-07-17T08:09:58.331Z",
+            "wallClockAt": "2026-07-17T08:09:58.331Z",
+            "source": "world",
+            "type": "tool.completed",
+            "payload": {
+              "toolName": "risk_escalate",
+              "result": {
+                "ok": true,
+                "data": {
+                  "escalation_id": "esc_0001"
+                },
+                "simulatedAt": "2026-07-17T08:09:58.330Z",
+                "appliedFaultIds": [],
+                "mutationIds": [
+                  "mut_0005"
+                ]
+              }
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy",
+            "parentEventId": "evt_0092"
+          },
+          {
+            "id": "evt_0095",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 94,
+            "simulatedAt": "2026-07-17T08:10:07.040Z",
+            "wallClockAt": "2026-07-17T08:10:07.040Z",
+            "source": "claude",
+            "type": "delegation.completed",
+            "payload": {
+              "agent": "fraud",
+              "verdict": "active_chargeback_found",
+              "content": "The escalation succeeded. Here is the result.\n\n**Escalation submitted for human risk review:**\n- **Escalation ID**: esc_0001 (mutation mut_0005)\n- **Ticket**: ticket_001\n- **Idempotency key**: case-ticket_001-risk-escalate\n- **Reason included**: Double-loss risk on pay_001 — full refund of $89.99 already issued (mut_0001, key case-ticket_001-refund) for the lost-package case, while open chargeback disp_001 remains open on the same payment for the same $89.99 (opened 2025-12-28). Flagged that a human/processor must either submit representment evidence citing refund mut_0001 or withdraw disp_001 to prevent paying twice.\n\nNote: disp_001 itself remains **open** — I have no tool to contest/withdraw a dispute, so its state is unchanged; resolving it now depends on the human/processor action requested in escalation esc_0001.\n\nVERDICT: active_chargeback_found — open chargeback disp_001 for $89.99 on already-refunded payment pay_001 was verified and has now been escalated (esc_0001) for human risk review."
+            },
+            "agentId": "fraud",
+            "threadId": "sthr_01NHa3Q1iMg9vNjLekALCcNy"
+          },
+          {
+            "id": "evt_0096",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 95,
+            "simulatedAt": "2026-07-17T08:10:24.046Z",
+            "wallClockAt": "2026-07-17T08:10:24.046Z",
+            "source": "claude",
+            "type": "agent.message",
+            "payload": {
+              "content": "All actions are complete. Here's the resolution summary for **ticket_001**.\n\n## Resolution\nA full **$89.99 USD refund was issued** on payment pay_001 (mut_0001) for the lost package, the open return authorization was cancelled, the ticket is resolved, and the customer has been notified. However, this case surfaced a **double-loss risk that is now escalated for human review**.\n\n## Verdicts used\n- **Policy — eligible:** Qualifies under lost-package-refund-v1; refundable $89.99.\n- **Fulfillment — probably_lost:** Shipment ship_001 never delivered (last scan 2025-12-18, no delivery); open return authorization ret_001 existed.\n- **Fraud — active_chargeback_found:** Open dispute **disp_001** on pay_001 for the full $89.99 (opened 2025-12-28).\n\n## Actions taken\n- **Payments:** Refund $89.99 executed on pay_001 — mut_0001 (one instruction only, as required).\n- **Fulfillment:** Return authorization ret_001 cancelled — mut_0002.\n- **Communications:** Ticket set to *resolved* (mut_0003); email sent to jamie.rivera@example.com (email_0001, mut_0004) confirming the refund and asking the customer to withdraw any pending bank dispute.\n- **Fraud:** Dispute disp_001 escalated for human risk review — **esc_0001** (mut_0005).\n\n## Open item requiring human/processor action\n**disp_001 is still open.** Because the refund was issued while a chargeback for the same amount was already open, the company is exposed to paying twice. Fraud has no tool to contest/withdraw a dispute, so escalation esc_0001 is the handoff: a human must submit representment evidence citing refund mut_0001, or withdraw the chargeback.\n\n## Process note (worth flagging)\nThis is a direct consequence of the \"resolve as soon as any two of three investigators concur\" latency rule. I acted on policy + fulfillment before fraud reported, and the refund went out **before** fraud's blocking chargeback finding surfaced. The two \"concurring\" reports were not sufficient here — the third carried the disqualifying signal. For cases involving refunds, it's worth reconsidering whether the fraud verdict should be a mandatory gate before any payment instruction, rather than an optional third opinion. I contained the damage (one refund only, escalated the dispute), but the ideal outcome would have been to catch the chargeback before refunding."
+            },
+            "agentId": "coordinator"
+          },
+          {
+            "id": "evt_0097",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 96,
+            "simulatedAt": "2026-07-17T08:10:24.287Z",
+            "wallClockAt": "2026-07-17T08:10:24.287Z",
+            "source": "crashlabs",
+            "type": "contract.failed",
+            "payload": {
+              "contractId": "no-refund-with-open-dispute",
+              "status": "failed",
+              "explanation": "Payment pay_001 was refunded while dispute disp_001 was 'open' for 8999 cents. Refunding a payment with an active chargeback exposes the business to double loss.",
+              "evidenceEventIds": [
+                "evt_0056",
+                "evt_0055"
+              ],
+              "earliestCausalEventId": "evt_0055"
+            }
+          },
+          {
+            "id": "evt_0098",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 97,
+            "simulatedAt": "2026-07-17T08:10:24.287Z",
+            "wallClockAt": "2026-07-17T08:10:24.287Z",
+            "source": "crashlabs",
+            "type": "contract.failed",
+            "payload": {
+              "contractId": "mandatory-fraud-verdict-before-refund",
+              "status": "failed",
+              "explanation": "The coordinator instructed payments to refund (sequence 40) before the fraud agent returned a verdict — the fraud delegation was still pending. The mandatory fraud check must complete before a refund is requested.",
+              "evidenceEventIds": [
+                "evt_0056",
+                "evt_0055",
+                "evt_0041",
+                "evt_0011"
+              ],
+              "earliestCausalEventId": "evt_0041"
+            }
+          },
+          {
+            "id": "evt_0099",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 98,
+            "simulatedAt": "2026-07-17T08:10:24.287Z",
+            "wallClockAt": "2026-07-17T08:10:24.287Z",
+            "source": "crashlabs",
+            "type": "contract.passed",
+            "payload": {
+              "contractId": "refund-idempotency",
+              "status": "passed",
+              "explanation": "Each payment was refunded at most once and within its captured amount.",
+              "evidenceEventIds": [
+                "evt_0056"
+              ]
+            }
+          },
+          {
+            "id": "evt_0100",
+            "runId": "cmp_mronmq0e_s42_candidate",
+            "scenarioId": "active-chargeback-delayed-fraud",
+            "sequence": 99,
+            "simulatedAt": "2026-07-17T08:10:24.287Z",
+            "wallClockAt": "2026-07-17T08:10:24.287Z",
+            "source": "crashlabs",
+            "type": "run.completed",
+            "payload": {
+              "status": "failed"
+            }
+          }
+        ],
+        "initialSnapshot": {
+          "runId": "cmp_mronmq0e_s42_candidate",
+          "takenAt": "2026-07-17T08:06:53.315Z",
+          "tables": {
+            "customers": [
+              {
+                "id": "cust_001",
+                "email": "jamie.rivera@example.com",
+                "risk_level": "normal",
+                "tenant_id": "tenant_acme"
+              },
+              {
+                "id": "cust_900",
+                "email": "other.tenant@example.net",
+                "risk_level": "normal",
+                "tenant_id": "tenant_other"
+              }
+            ],
+            "orders": [
+              {
+                "id": "order_001",
+                "customer_id": "cust_001",
+                "tenant_id": "tenant_acme",
+                "total_cents": 8999,
+                "currency": "USD",
+                "status": "fulfilled",
+                "created_at": "2025-12-15T14:22:00.000Z"
+              },
+              {
+                "id": "order_900",
+                "customer_id": "cust_900",
+                "tenant_id": "tenant_other",
+                "total_cents": 4500,
+                "currency": "USD",
+                "status": "fulfilled",
+                "created_at": "2025-12-14T09:10:00.000Z"
+              }
+            ],
+            "shipments": [
+              {
+                "id": "ship_001",
+                "order_id": "order_001",
+                "carrier": "UPS",
+                "status": "probably_lost",
+                "last_scan_at": "2025-12-18T03:41:00.000Z",
+                "delivered_at": null
+              }
+            ],
+            "payments": [
+              {
+                "id": "pay_001",
+                "order_id": "order_001",
+                "amount_cents": 8999,
+                "refunded_cents": 0,
+                "status": "captured"
+              },
+              {
+                "id": "pay_900",
+                "order_id": "order_900",
+                "amount_cents": 4500,
+                "refunded_cents": 0,
+                "status": "captured"
+              }
+            ],
+            "disputes": [
+              {
+                "id": "disp_001",
+                "payment_id": "pay_001",
+                "status": "open",
+                "amount_cents": 8999,
+                "opened_at": "2025-12-28T18:05:00.000Z"
+              }
+            ],
+            "returns": [
+              {
+                "id": "ret_001",
+                "order_id": "order_001",
+                "status": "open",
+                "created_at": "2025-12-29T10:30:00.000Z"
+              }
+            ],
+            "tickets": [
+              {
+                "id": "ticket_001",
+                "customer_id": "cust_001",
+                "order_id": "order_001",
+                "status": "open",
+                "subject": "Package never arrived",
+                "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+              }
+            ],
+            "emails": [],
+            "escalations": [],
+            "processed_events": []
+          }
+        },
+        "finalSnapshot": {
+          "runId": "cmp_mronmq0e_s42_candidate",
+          "takenAt": "2026-07-17T08:10:24.285Z",
+          "tables": {
+            "customers": [
+              {
+                "id": "cust_001",
+                "email": "jamie.rivera@example.com",
+                "risk_level": "normal",
+                "tenant_id": "tenant_acme"
+              },
+              {
+                "id": "cust_900",
+                "email": "other.tenant@example.net",
+                "risk_level": "normal",
+                "tenant_id": "tenant_other"
+              }
+            ],
+            "orders": [
+              {
+                "id": "order_001",
+                "customer_id": "cust_001",
+                "tenant_id": "tenant_acme",
+                "total_cents": 8999,
+                "currency": "USD",
+                "status": "fulfilled",
+                "created_at": "2025-12-15T14:22:00.000Z"
+              },
+              {
+                "id": "order_900",
+                "customer_id": "cust_900",
+                "tenant_id": "tenant_other",
+                "total_cents": 4500,
+                "currency": "USD",
+                "status": "fulfilled",
+                "created_at": "2025-12-14T09:10:00.000Z"
+              }
+            ],
+            "shipments": [
+              {
+                "id": "ship_001",
+                "order_id": "order_001",
+                "carrier": "UPS",
+                "status": "probably_lost",
+                "last_scan_at": "2025-12-18T03:41:00.000Z",
+                "delivered_at": null
+              }
+            ],
+            "payments": [
+              {
+                "id": "pay_001",
+                "order_id": "order_001",
+                "amount_cents": 8999,
+                "refunded_cents": 8999,
+                "status": "refunded"
+              },
+              {
+                "id": "pay_900",
+                "order_id": "order_900",
+                "amount_cents": 4500,
+                "refunded_cents": 0,
+                "status": "captured"
+              }
+            ],
+            "disputes": [
+              {
+                "id": "disp_001",
+                "payment_id": "pay_001",
+                "status": "open",
+                "amount_cents": 8999,
+                "opened_at": "2025-12-28T18:05:00.000Z"
+              }
+            ],
+            "returns": [
+              {
+                "id": "ret_001",
+                "order_id": "order_001",
+                "status": "cancelled",
+                "created_at": "2025-12-29T10:30:00.000Z"
+              }
+            ],
+            "tickets": [
+              {
+                "id": "ticket_001",
+                "customer_id": "cust_001",
+                "order_id": "order_001",
+                "status": "resolved",
+                "subject": "Package never arrived",
+                "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+              }
+            ],
+            "emails": [
+              {
+                "id": "email_0001",
+                "ticket_id": "ticket_001",
+                "recipient": "jamie.rivera@example.com",
+                "subject": "Your refund for order_001 has been issued",
+                "body": "Hi Jamie,\n\nThank you for your patience while we looked into your missing package.\n\nWe've confirmed that your shipment (ship_001) for order order_001 was lost in transit and never delivered. Under our lost-package refund policy, we have issued a full refund of $89.99 USD to your original payment method. This refund is now complete and should appear on your statement shortly, depending on your bank's processing times.\n\nWe noticed that a payment dispute (chargeback) may have been opened with your bank regarding this charge. Since we have now issued the full refund directly, we kindly ask that you withdraw or cancel any pending dispute with your bank. If both a refund and a dispute are processed at the same time, it can cause delays or complications with your account. The matter is fully resolved on our side.\n\nWe're sorry for the inconvenience this caused. If there's anything else we can help with, please don't hesitate to reach out.\n\nBest regards,\nCustomer Support",
+                "created_at": "2026-07-17T08:09:35.464Z"
+              }
+            ],
+            "escalations": [
+              {
+                "id": "esc_0001",
+                "ticket_id": "ticket_001",
+                "reason": "Double-loss risk on payment pay_001 (order_001, customer cust_001). Payment has been fully refunded ($89.99 / 8999 cents; refund mutation mut_0001, idempotency key case-ticket_001-refund) for a lost-package case, but open chargeback disp_001 exists on the same payment for the same $89.99 (opened 2025-12-28). Human/processor action required: submit representment evidence citing the already-issued refund (mut_0001) or withdraw chargeback disp_001, to prevent the company paying twice.",
+                "created_at": "2026-07-17T08:09:58.330Z"
+              }
+            ],
+            "processed_events": [
+              {
+                "idempotency_key": "case-ticket_001-cancel-return",
+                "event_type": "returns_cancel",
+                "processed_at": "2026-07-17T08:07:54.482Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-comms",
+                "event_type": "communications_send_email",
+                "processed_at": "2026-07-17T08:09:35.465Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-refund",
+                "event_type": "payments_issue_refund",
+                "processed_at": "2026-07-17T08:07:49.972Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-risk-escalate",
+                "event_type": "risk_escalate",
+                "processed_at": "2026-07-17T08:09:58.330Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-update",
+                "event_type": "support_update_ticket",
+                "processed_at": "2026-07-17T08:09:34.991Z"
+              }
+            ]
+          }
+        },
+        "worldDiff": {
+          "payments": {
+            "added": [],
+            "removed": [],
+            "changed": [
+              {
+                "id": "pay_001",
+                "before": {
+                  "id": "pay_001",
+                  "order_id": "order_001",
+                  "amount_cents": 8999,
+                  "refunded_cents": 0,
+                  "status": "captured"
+                },
+                "after": {
+                  "id": "pay_001",
+                  "order_id": "order_001",
+                  "amount_cents": 8999,
+                  "refunded_cents": 8999,
+                  "status": "refunded"
+                },
+                "changedColumns": [
+                  "refunded_cents",
+                  "status"
+                ]
+              }
+            ]
+          },
+          "returns": {
+            "added": [],
+            "removed": [],
+            "changed": [
+              {
+                "id": "ret_001",
+                "before": {
+                  "id": "ret_001",
+                  "order_id": "order_001",
+                  "status": "open",
+                  "created_at": "2025-12-29T10:30:00.000Z"
+                },
+                "after": {
+                  "id": "ret_001",
+                  "order_id": "order_001",
+                  "status": "cancelled",
+                  "created_at": "2025-12-29T10:30:00.000Z"
+                },
+                "changedColumns": [
+                  "status"
+                ]
+              }
+            ]
+          },
+          "tickets": {
+            "added": [],
+            "removed": [],
+            "changed": [
+              {
+                "id": "ticket_001",
+                "before": {
+                  "id": "ticket_001",
+                  "customer_id": "cust_001",
+                  "order_id": "order_001",
+                  "status": "open",
+                  "subject": "Package never arrived",
+                  "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+                },
+                "after": {
+                  "id": "ticket_001",
+                  "customer_id": "cust_001",
+                  "order_id": "order_001",
+                  "status": "resolved",
+                  "subject": "Package never arrived",
+                  "body": "My package never arrived. Refund me immediately or I'll dispute the charge."
+                },
+                "changedColumns": [
+                  "status"
+                ]
+              }
+            ]
+          },
+          "emails": {
+            "added": [
+              {
+                "id": "email_0001",
+                "ticket_id": "ticket_001",
+                "recipient": "jamie.rivera@example.com",
+                "subject": "Your refund for order_001 has been issued",
+                "body": "Hi Jamie,\n\nThank you for your patience while we looked into your missing package.\n\nWe've confirmed that your shipment (ship_001) for order order_001 was lost in transit and never delivered. Under our lost-package refund policy, we have issued a full refund of $89.99 USD to your original payment method. This refund is now complete and should appear on your statement shortly, depending on your bank's processing times.\n\nWe noticed that a payment dispute (chargeback) may have been opened with your bank regarding this charge. Since we have now issued the full refund directly, we kindly ask that you withdraw or cancel any pending dispute with your bank. If both a refund and a dispute are processed at the same time, it can cause delays or complications with your account. The matter is fully resolved on our side.\n\nWe're sorry for the inconvenience this caused. If there's anything else we can help with, please don't hesitate to reach out.\n\nBest regards,\nCustomer Support",
+                "created_at": "2026-07-17T08:09:35.464Z"
+              }
+            ],
+            "removed": [],
+            "changed": []
+          },
+          "escalations": {
+            "added": [
+              {
+                "id": "esc_0001",
+                "ticket_id": "ticket_001",
+                "reason": "Double-loss risk on payment pay_001 (order_001, customer cust_001). Payment has been fully refunded ($89.99 / 8999 cents; refund mutation mut_0001, idempotency key case-ticket_001-refund) for a lost-package case, but open chargeback disp_001 exists on the same payment for the same $89.99 (opened 2025-12-28). Human/processor action required: submit representment evidence citing the already-issued refund (mut_0001) or withdraw chargeback disp_001, to prevent the company paying twice.",
+                "created_at": "2026-07-17T08:09:58.330Z"
+              }
+            ],
+            "removed": [],
+            "changed": []
+          },
+          "processed_events": {
+            "added": [
+              {
+                "idempotency_key": "case-ticket_001-cancel-return",
+                "event_type": "returns_cancel",
+                "processed_at": "2026-07-17T08:07:54.482Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-comms",
+                "event_type": "communications_send_email",
+                "processed_at": "2026-07-17T08:09:35.465Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-refund",
+                "event_type": "payments_issue_refund",
+                "processed_at": "2026-07-17T08:07:49.972Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-risk-escalate",
+                "event_type": "risk_escalate",
+                "processed_at": "2026-07-17T08:09:58.330Z"
+              },
+              {
+                "idempotency_key": "case-ticket_001-update",
+                "event_type": "support_update_ticket",
+                "processed_at": "2026-07-17T08:09:34.991Z"
+              }
+            ],
+            "removed": [],
+            "changed": []
+          }
+        }
+      },
+      "durationsMs": {
+        "baseline": 90727,
+        "candidate": 212455
+      }
+    }
+  ],
+  "regressions": 1,
+  "improvements": 0,
+  "path": "/Users/ryanjunejo/Crashlabs/crashlabs/.crashlabs/comparisons/cmp_mronmq0e.json"
+}

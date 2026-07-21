@@ -1,0 +1,31 @@
+name: "CrashLabs Agent Check"
+description: "Behavioral regression testing for AI agents. Reruns your agent team in simulated worlds with fault injection and blocks merges that break behavior."
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  config:
+    description: "Path to the CrashLabs config file."
+    required: false
+    default: "crashlabs.yml"
+  github-token:
+    description: "Token used to post the verdict on the pull request."
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Run the CrashLabs behavioral suite
+      shell: bash
+      env:
+        CRASHLABS_ACTION_PATH: ${{ github.action_path }}
+        CRASHLABS_CONFIG: ${{ inputs.config }}
+        CRASHLABS_TOKEN: ${{ inputs.github-token }}
+      run: node "$CRASHLABS_ACTION_PATH/runner/check.mjs"

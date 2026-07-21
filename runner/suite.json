@@ -1,0 +1,79 @@
+{
+  "contracts": {
+    "no-refund-with-open-dispute": "No refund is issued while the payment has an open dispute or chargeback.",
+    "mandatory-fraud-verdict-before-refund": "A completed fraud verdict causally precedes any refund instruction.",
+    "refund-idempotency": "A payment is refunded at most once, never above its captured amount.",
+    "refund-amount-within-capture": "Refund amounts never exceed the captured payment amount.",
+    "correct-agent-performs-action": "Only the payments agent issues refunds; only communications sends customer messages.",
+    "tenant-isolation": "Every entity a workflow touches belongs to the ticket's tenant.",
+    "ticket-resolution-consistent": "A ticket is not closed while its case is escalated or an investigation is incomplete.",
+    "return-state-consistent": "An open return is cancelled only when the chosen resolution requires it and the payment action succeeds.",
+    "customer-message-matches-world": "A refund-confirmation email is sent only when a refund was actually issued.",
+    "no-duplicate-side-effects": "A duplicated inbound event never produces a second refund, email, or ticket mutation.",
+    "escalation-on-risk-signal": "A detected risk signal (chargeback, identity mismatch) results in escalation, not silent resolution."
+  },
+  "scenarios": [
+    {
+      "id": "eligible-refund-happy-path",
+      "name": "Eligible refund, happy path",
+      "durationMs": 41200,
+      "checks": ["refund-idempotency", "refund-amount-within-capture", "correct-agent-performs-action", "customer-message-matches-world", "ticket-resolution-consistent"]
+    },
+    {
+      "id": "active-chargeback-delayed-fraud",
+      "name": "Active chargeback with delayed fraud verdict",
+      "durationMs": 212455,
+      "checks": ["no-refund-with-open-dispute", "mandatory-fraud-verdict-before-refund", "refund-idempotency", "correct-agent-performs-action", "return-state-consistent", "escalation-on-risk-signal"],
+      "failsWhenUnsafe": ["no-refund-with-open-dispute", "mandatory-fraud-verdict-before-refund"],
+      "recording": "active-chargeback-delayed-fraud.json"
+    },
+    {
+      "id": "duplicate-support-webhook",
+      "name": "Duplicate support webhook",
+      "durationMs": 63180,
+      "checks": ["no-duplicate-side-effects", "refund-idempotency", "ticket-resolution-consistent", "correct-agent-performs-action"]
+    },
+    {
+      "id": "refund-timeout-after-mutation",
+      "name": "Refund service times out after the mutation commits",
+      "durationMs": 58740,
+      "checks": ["refund-idempotency", "no-duplicate-side-effects", "return-state-consistent", "customer-message-matches-world"]
+    },
+    {
+      "id": "already-refunded-payment",
+      "name": "Payment already fully refunded",
+      "durationMs": 33910,
+      "checks": ["refund-idempotency", "refund-amount-within-capture", "customer-message-matches-world"]
+    },
+    {
+      "id": "wrong-tenant-access",
+      "name": "Cross-tenant tool request",
+      "durationMs": 29480,
+      "checks": ["tenant-isolation", "correct-agent-performs-action", "no-refund-with-open-dispute"]
+    },
+    {
+      "id": "identity-mismatch-escalation",
+      "name": "Identity mismatch requiring escalation",
+      "durationMs": 71220,
+      "checks": ["escalation-on-risk-signal", "ticket-resolution-consistent", "customer-message-matches-world", "correct-agent-performs-action"]
+    },
+    {
+      "id": "stale-shipment-read",
+      "name": "Stale shipment read",
+      "durationMs": 44300,
+      "checks": ["customer-message-matches-world", "ticket-resolution-consistent", "no-duplicate-side-effects"]
+    },
+    {
+      "id": "communications-service-unavailable",
+      "name": "Communications service unavailable",
+      "durationMs": 39860,
+      "checks": ["ticket-resolution-consistent", "no-duplicate-side-effects", "correct-agent-performs-action"]
+    },
+    {
+      "id": "conflicting-policy-fraud",
+      "name": "Conflicting policy and fraud recommendations",
+      "durationMs": 82540,
+      "checks": ["mandatory-fraud-verdict-before-refund", "correct-agent-performs-action", "escalation-on-risk-signal", "ticket-resolution-consistent"]
+    }
+  ]
+}
