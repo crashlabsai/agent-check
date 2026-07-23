@@ -18,10 +18,17 @@ import {
   buildReport,
   classifySource,
   computeResults,
+  clamp,
   fmtDuration,
   progressLine,
   readSystemSource,
+  relTime,
+  renderWaterfall,
   toolName,
+  TRACE_HEADER,
+  traceLine,
+  traceRows,
+  transcript,
   worldImpact,
 } from "./report.mjs";
 
@@ -177,9 +184,20 @@ function cmdSimsShow(id) {
   console.log(dim("     deterministic · schedule seed 42 · replays identically"));
   console.log("");
 
-  // ---- candidate timeline & tool calls --------------------------------
-  section(`CANDIDATE TIMELINE  ${dim("(the change under test)")}`);
-  printTimeline(candidate);
+  // ---- span waterfall --------------------------------------------------
+  section(`AGENT SPANS  ${dim("(who was working when)")}`);
+  for (const line of renderWaterfall(candidate).split("\n")) {
+    console.log(`  ${/▲/.test(line) ? yellow(line) : dim(line)}`);
+  }
+  console.log("");
+
+  // ---- event-level trace ----------------------------------------------
+  section(`EXECUTION TRACE  ${dim("(the change under test)")}`);
+  printTrace(candidate);
+
+  // ---- conversation transcript ----------------------------------------
+  section("CONVERSATION TRANSCRIPT");
+  printTranscript(candidate);
 
   // ---- contracts -------------------------------------------------------
   section("BEHAVIORAL CONTRACTS");
@@ -234,20 +252,44 @@ function printWorld(tables) {
   console.log("");
 }
 
-function printTimeline(run) {
-  let seq = 0;
-  for (const e of run.events) {
-    const line = progressLine(e);
-    if (!line) continue;
-    const n = String(seq++).padStart(2, " ");
-    const p = e.payload || {};
-    let styled = dim(line);
-    if (e.type === "fault.applied") styled = yellow(line);
-    else if (e.type === "tool.requested" && p.toolName === "payments_issue_refund") styled = bold(red(line));
-    else if (e.type.startsWith("delegation")) styled = mag(line);
-    console.log(`  ${dim(n)}  ${styled}`);
+/**
+ * The event-level trace: every message, tool call, tool result, injected
+ * fault, world write, and contract violation, on one timeline. Colour follows
+ * the row kind so the money-moving call and the violations stand out.
+ */
+function printTrace(run) {
+  const paint = {
+    meta: dim,
+    message: (s) => s,
+    delegation: mag,
+    call: cyan,
+    result: dim,
+    fault: yellow,
+    write: (s) => bold(yellow(s)),
+    danger: (s) => bold(red(s)),
+    violation: (s) => bold(red(s)),
+  };
+  console.log(dim(`  ${TRACE_HEADER}`));
+  for (const row of traceRows(run)) {
+    console.log(`  ${(paint[row.kind] || dim)(traceLine(row))}`);
   }
   console.log("");
+  console.log(
+    dim("  say=agent message  →dlg/←dlg=delegation  call/ret=tool call+result  WRITE=world mutation  FAULT=injected fault  VIOL=contract violation"),
+  );
+  console.log("");
+}
+
+/** The conversation itself — what each agent actually said, in order. */
+function printTranscript(run) {
+  for (const m of transcript(run)) {
+    const who = m.to ? `${m.from} → ${m.to}` : m.from;
+    console.log(`  ${dim(relTime(m.atMs).padStart(8))}  ${bold(cyan(who))}${m.verdict ? dim(`  verdict=${m.verdict}`) : ""}`);
+    for (const line of clamp(m.text, 700).split("\n")) {
+      console.log(dim(`      ${wrap(line, 84, "      ")}`));
+    }
+    console.log("");
+  }
 }
 
 function wrap(text, width, indent) {

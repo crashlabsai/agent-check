@@ -18,7 +18,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { createSign } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildReport, classifySource, computeResults, progressLine } from "../runner/report.mjs";
+import { buildReport, classifySource, computeResults } from "../runner/report.mjs";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const API = "https://api.github.com";
@@ -105,17 +105,11 @@ async function main() {
   const { results, totals } = computeResults(suite, verdict);
   const failed = totals.failedChecks > 0;
 
-  // 4. create a Check Run authored by the app, with the FULL evidence + timeline
-  //    in its Details page (this is the "Investigate" target the comment links to)
-  const timeline = recording.scenarios[0].candidate.events
-    .map(progressLine)
-    .filter(Boolean)
-    .map((l) => `    ${l}`)
-    .join("\n");
-  const detailedReport = buildReport({ verdict, suite, results, totals, recording, detailed: true });
-  const checkText = failed
-    ? `${detailedReport}\n\n<details><summary>candidate timeline</summary>\n\n\`\`\`\n${timeline}\n\`\`\`\n</details>`
-    : detailedReport;
+  // 4. create a Check Run authored by the app, with the FULL evidence in its
+  //    Details page — span waterfall, event-level trace, conversation
+  //    transcript, world diff. This is the "Investigate" target the comment
+  //    links to. GitHub caps output.text at 65535 chars.
+  const checkText = buildReport({ verdict, suite, results, totals, recording, detailed: true }).slice(0, 65000);
   const check = await gh(token, `/repos/${owner}/${name}/check-runs`, {
     method: "POST",
     body: JSON.stringify({
