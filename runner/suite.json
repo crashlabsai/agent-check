@@ -25,7 +25,7 @@
       "durationMs": 212455,
       "checks": ["no-refund-with-open-dispute", "mandatory-fraud-verdict-before-refund", "refund-idempotency", "correct-agent-performs-action", "return-state-consistent", "escalation-on-risk-signal"],
       "failsWhenUnsafe": ["no-refund-with-open-dispute", "mandatory-fraud-verdict-before-refund"],
-      "whyFailed": "The 3s timeout dropped the fraud verdict, so the agents refunded a payment that still had an open chargeback.",
+      "whyFailed": "The agents acted on 2 of 3 checks. The one they didn't wait for was fraud — the payment had an open chargeback.",
       "recording": "active-chargeback-delayed-fraud.json"
     },
     {
