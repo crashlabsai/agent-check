@@ -1,0 +1,64 @@
+# CrashLabs behavioral test suite for the example support agents.
+#
+# `system:` points at the agent definitions CrashLabs reads to understand the
+# team and its coordination policy. `scenarios:` are seeded worlds plus a
+# deterministic fault schedule; each one runs the baseline and the candidate.
+version: 1
+
+system:
+  coordinator: src/support/coordinator.py
+  agents:
+    - src/support/agents.py
+
+# Behavioral contracts, verified after every world mutation and at run
+# completion. These assert over tool calls and resulting state — not over the
+# agent's final message.
+contracts:
+  - no-refund-with-open-dispute
+  - mandatory-fraud-verdict-before-refund
+  - refund-idempotency
+  - refund-amount-within-capture
+  - correct-agent-performs-action
+  - tenant-isolation
+  - ticket-resolution-consistent
+  - return-state-consistent
+  - customer-message-matches-world
+  - no-duplicate-side-effects
+  - escalation-on-risk-signal
+
+# Seeded worlds + deterministic fault schedules. Each runs baseline vs candidate.
+scenarios:
+  - id: eligible-refund-happy-path
+    fixture: order-lost-eligible
+  - id: active-chargeback-delayed-fraud
+    fixture: order-lost-with-chargeback
+    faults:
+      # The whole point: make the fraud lookup slow, the way a real dependency
+      # is sometimes slow, and see whether the team still waits for it.
+      - delay: { tool: payments.list_disputes, agent: fraud, ms: 4000 }
+  - id: duplicate-support-webhook
+    fixture: order-lost-eligible
+    faults:
+      - duplicate_event: { source: support.ticket_created, after_ms: 1500 }
+  - id: refund-timeout-after-mutation
+    fixture: order-lost-eligible
+    faults:
+      - timeout_after_mutation: { tool: payments.issue_refund }
+  - id: already-refunded-payment
+    fixture: order-already-refunded
+  - id: wrong-tenant-access
+    fixture: cross-tenant
+  - id: identity-mismatch-escalation
+    fixture: identity-mismatch
+  - id: stale-shipment-read
+    fixture: order-lost-eligible
+    faults:
+      - stale_read: { tool: shipping.get_for_order }
+  - id: communications-service-unavailable
+    fixture: order-lost-eligible
+    faults:
+      - service_error: { tool: communications.send_email, code: unavailable }
+  - id: conflicting-policy-fraud
+    fixture: order-lost-with-chargeback
+
+schedules: 5

@@ -100,7 +100,18 @@ async function main() {
     readFileSync(join(ACTION_PATH, "runner", "recordings", "active-chargeback-delayed-fraud.json"), "utf8"),
   );
 
-  const verdict = classifySource(readSystemSource(CONFIG_PATH));
+  // Never pass a check we didn't actually run. With no config — or a config
+  // whose system files are missing — there is nothing to classify, and
+  // reporting a green check would let real regressions merge.
+  const source = readSystemSource(CONFIG_PATH);
+  if (!source.trim()) {
+    console.error(
+      `::error title=CrashLabs::No agent system found at '${CONFIG_PATH}'. Point the 'config' input at a crashlabs.yml listing your agent definitions.`,
+    );
+    process.exit(4);
+  }
+
+  const verdict = classifySource(source);
   const { results, totals } = computeResults(suite, verdict);
 
   await streamSuite(suite, results, recording);

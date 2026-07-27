@@ -67,6 +67,23 @@ function header(title, subtitle) {
 async function cmdTest(config) {
   const suite = loadSuite();
   const source = readSystemSource(config);
+
+  // Refuse to report a verdict we didn't earn. With no config (or a config
+  // whose system files are missing) there is nothing to classify, and silently
+  // printing "all checks passed" would be a lie.
+  if (!source.trim()) {
+    header(red("no agent system found"), `config: ${config}`);
+    console.log(`  CrashLabs needs a ${bold("crashlabs.yml")} pointing at your agent definitions.`);
+    console.log("");
+    console.log("  To try it on the bundled example:");
+    console.log(`    ${cyan("cd example && crashlabs test")}`);
+    console.log("");
+    console.log(`  Or point at your own: ${cyan("crashlabs test --config path/to/crashlabs.yml")}`);
+    console.log("");
+    process.exitCode = 4;
+    return;
+  }
+
   const verdict = classifySource(source);
   const recording = loadRecording("active-chargeback-delayed-fraud.json");
   const { results, totals } = computeResults(suite, verdict);
